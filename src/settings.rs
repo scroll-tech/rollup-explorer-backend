@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use config::{Config, File};
+use config::{Config, Environment, File};
 use serde::Deserialize;
 use std::env;
 use std::lazy::SyncOnceCell;
@@ -21,6 +21,7 @@ impl Settings {
         let config = Config::builder()
             .add_source(File::with_name("config/default"))
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
+            .add_source(Environment::default())
             .build()?;
 
         let settings = config.try_deserialize()?;

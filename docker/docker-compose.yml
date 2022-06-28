@@ -30,5 +30,7 @@ services:
     image: scrolltech/rollup-explorer
     links:
       - db
+    environment:
+      OPEN_API_ADDR: "localhost:8600"
     ports:
-      - "5000:5000"
+      - "8600:5000"

@@ -12,7 +12,8 @@ RUN cd /root/src && cargo build --release
 
 FROM alpine:3.15
 
-ENV RUN_MODE "production"
+ENV OPEN_API_ADDR=$open_api_addr
+ENV RUN_MODE="production"
 
 RUN mkdir -p /root/config
 COPY --from=builder /root/src/config/ /root/config/
