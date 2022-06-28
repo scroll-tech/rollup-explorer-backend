@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:13.6
+    container_name: postgres
+    restart: always
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    environment:
+        POSTGRES_DB: "rollup_explorer"
+        POSTGRES_HOST_AUTH_METHOD: "trust"
+        POSTGRES_PASSWORD: "scroll2022"
+        POSTGRES_USER: "scroll"
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  rollup_explorer:
+    container_name: rollup_explorer
+    depends_on:
+      - db
+    restart: always
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    image: scrolltech/rollup-explorer
+    links:
+      - db
+    ports:
+      - "5000:5000"

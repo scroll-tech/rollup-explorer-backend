@@ -1,0 +1,27 @@
+name: Unit Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-test:
+    name: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          profile: minimal
+          toolchain: nightly-2022-05-01
+      - uses: Swatinem/rust-cache@v1
+      - uses: taiki-e/install-action@nextest
+      - uses: actions-rs/cargo@v1
+        with:
+          command: nextest
+          args: run --all
