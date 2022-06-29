@@ -6,17 +6,12 @@ use poem::Result;
 use poem_openapi::param::Query;
 use poem_openapi::payload::Json;
 use poem_openapi::{Object, OpenApi};
+use rust_decimal::Decimal;
 
 pub(crate) struct Apis;
 
 // Query parameter `page` starts from `1`, and default `per_page` is 20.
 const DEFAULT_PER_PAGE: u64 = 20;
-
-#[derive(Object)]
-struct L2BlocksResponse {
-    total: i64,
-    blocks: Vec<L2Block>,
-}
 
 #[OpenApi]
 impl Apis {
@@ -47,4 +42,26 @@ impl Apis {
 
         Ok(Json(L2BlocksResponse { total, blocks }))
     }
+
+    #[oai(path = "/l2_tps", method = "get")]
+    async fn l2_tps(&self, db_pool: Data<&DbPool>) -> Result<Json<L2TpsResponse>> {
+        let tps = l2_block_query::get_l2_tps(&db_pool)
+            .await
+            .map_err(InternalServerError)?;
+        // Only keep two decimal digits.
+        Ok(Json(L2TpsResponse {
+            tps: tps.round_dp(2),
+        }))
+    }
+}
+
+#[derive(Object)]
+struct L2BlocksResponse {
+    total: i64,
+    blocks: Vec<L2Block>,
+}
+
+#[derive(Object)]
+struct L2TpsResponse {
+    tps: Decimal,
 }
