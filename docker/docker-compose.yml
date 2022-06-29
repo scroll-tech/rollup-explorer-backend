@@ -1,9 +1,10 @@
 version: "3"
+name: "rollup_explorer"
 
 services:
   db:
     image: postgres:13.6
-    container_name: postgres
+    container_name: rollup_explorer_postgres
     restart: always
     volumes:
       - ./docker-data/postgres:/var/lib/postgresql/data
@@ -19,8 +20,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  rollup_explorer:
-    container_name: rollup_explorer
+  backend:
+    container_name: rollup_explorer_backend
     depends_on:
       - db
     restart: always
