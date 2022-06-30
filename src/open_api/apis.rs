@@ -1,4 +1,4 @@
-use crate::db::{l2_block_query, DbPool};
+use crate::db::{l2_block_query, tps_query, DbPool};
 use crate::open_api::objects::L2Block;
 use poem::error::InternalServerError;
 use poem::web::Data;
@@ -15,6 +15,17 @@ const DEFAULT_PER_PAGE: u64 = 20;
 
 #[OpenApi]
 impl Apis {
+    #[oai(path = "/l1_tps", method = "get")]
+    async fn l1_tps(&self, db_pool: Data<&DbPool>) -> Result<Json<TpsResponse>> {
+        let tps = tps_query::get_l1_tps(&db_pool)
+            .await
+            .map_err(InternalServerError)?;
+        // Only keep two decimal digits.
+        Ok(Json(TpsResponse {
+            tps: tps.round_dp(2),
+        }))
+    }
+
     #[oai(path = "/l2_blocks", method = "get")]
     async fn l2_blocks(
         &self,
@@ -44,12 +55,12 @@ impl Apis {
     }
 
     #[oai(path = "/l2_tps", method = "get")]
-    async fn l2_tps(&self, db_pool: Data<&DbPool>) -> Result<Json<L2TpsResponse>> {
-        let tps = l2_block_query::get_l2_tps(&db_pool)
+    async fn l2_tps(&self, db_pool: Data<&DbPool>) -> Result<Json<TpsResponse>> {
+        let tps = tps_query::get_l2_tps(&db_pool)
             .await
             .map_err(InternalServerError)?;
         // Only keep two decimal digits.
-        Ok(Json(L2TpsResponse {
+        Ok(Json(TpsResponse {
             tps: tps.round_dp(2),
         }))
     }
@@ -62,6 +73,6 @@ struct L2BlocksResponse {
 }
 
 #[derive(Object)]
-struct L2TpsResponse {
+struct TpsResponse {
     tps: Decimal,
 }
