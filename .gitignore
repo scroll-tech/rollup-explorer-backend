@@ -1,3 +1,2 @@
-/docker/docker-data/
-/scripts/docker-data/
-/target
+docker-data/
+/backend/target

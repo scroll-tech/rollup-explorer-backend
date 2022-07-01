@@ -26,8 +26,8 @@ services:
       - db
     restart: always
     build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
+      context: backend
+      dockerfile: Dockerfile
     image: scrolltech/rollup-explorer
     links:
       - db

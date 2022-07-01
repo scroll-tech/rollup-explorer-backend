@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - Cargo.lock
+      - backend/Cargo.lock
   pull_request:
     branches:
       - main
     paths:
-      - Cargo.lock
+      - backend/Cargo.lock
 
 jobs:
   security-audit:
@@ -25,6 +25,6 @@ jobs:
           toolchain: nightly-2022-05-01
       - uses: Swatinem/rust-cache@v1
       - run: |
+          cd backend
           cargo install cargo-audit
           cargo audit --deny warnings --ignore RUSTSEC-2020-0071
-

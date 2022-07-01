@@ -17,7 +17,7 @@ function clean_data() {
 }
 
 kill_tasks
-docker-compose -f docker/docker-compose.yml down --remove-orphans
+docker compose -f docker-compose.yml down --remove-orphans
 if [ $DX_CLEAN == 'TRUE' ]; then
   clean_data
 fi

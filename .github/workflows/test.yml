@@ -21,7 +21,6 @@ jobs:
           toolchain: nightly-2022-05-01
       - uses: Swatinem/rust-cache@v1
       - uses: taiki-e/install-action@nextest
-      - uses: actions-rs/cargo@v1
-        with:
-          command: nextest
-          args: run --all
+      - run: |
+          cd backend
+          cargo nextest run --all
