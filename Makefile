@@ -1,17 +1,17 @@
 .PHONY: docker
 
 docker:
-	docker-compose -f docker-compose.yml build ## TODO: add frontend
+	docker compose -f docker-compose.yml build --build-arg next_public_base_api_url="$(NEXT_PUBLIC_BASE_API_URL)"
 
 lint:
 	cd backend && cargo fmt --all && cargo clippy -- -D warnings
 	cd frontend && yarn install && yarn run lint
 
-start_backend:
+start_be:
 	./scripts/stop.sh
-	./scripts/start.sh
+	./scripts/start_be_dev.sh
 
-start_frontend:
+start_fe:
 	cd frontend && yarn install && yarn run dev
 
 stop:

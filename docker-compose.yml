@@ -28,10 +28,23 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    image: scrolltech/rollup-explorer
+    image: scrolltech/rollup-explorer-backend
     links:
       - db
     environment:
       OPEN_API_ADDR: "localhost:8600"
     ports:
       - "8600:5000"
+  frontend:
+    container_name: rollup_explorer_frontend
+    depends_on:
+      - backend
+    restart: always
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: scrolltech/rollup-explorer-frontend
+    links:
+      - backend
+    ports:
+      - "8555:3000"

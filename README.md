@@ -6,20 +6,20 @@
 
 ## Development
 
-- `make start_backend`: Start a local `Postgres` docker-container, and `cargo run --bin rollup_explorer`. Then URL `http://0.0.0.0:5000` could be accessed in a Web browser.
+- `make start_be`: Start a local `Postgres` docker-container, and `cargo run --bin rollup_explorer`. Then URL `http://0.0.0.0:5000` could be accessed in a Web browser.
 
-- `make start_frontend`: Start the frontend. Then could visit it via [http://localhost:3000/](http://localhost:3000/).
+- `make start_fe`: Start the frontend. Then could visit it via [http://localhost:3000/](http://localhost:3000/).
 
-- `make stop`: Stop running `rollup_explorer` process and `Postgres` docker-container. The `Postgres` data should also be cleared via deleting folder `docker-data`.
+- `make stop`: Stop running `rollup_explorer` processes and `Postgres` docker-container. The `Postgres` data should also be cleared via deleting folder `docker-data`.
 
-- `make lint`: Run both `cargo fmt` and `cargo clippy`.
+- `make lint`: Format and lint codes.
 
 - `make shfmt`: Format Shell scripts.
 
 
 ## Release
 
-- Generate a docker image `scrolltech/rollup-explorer:latest` after running command `make docker`.
+- Generate a docker image `scrolltech/rollup-explorer:latest` after running command `NEXT_PUBLIC_BASE_API_URL="http://44.239.40.223:8560/api" make docker`.
 
 - This docker image could be tested via command `docker-compose -f docker/docker-compose.yml up -d`. Then access `http://0.0.0.0:5000` in a Web browser.
 
