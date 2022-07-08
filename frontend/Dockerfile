@@ -1,4 +1,6 @@
-FROM node:18-alpine3.15
+# Build
+
+FROM node:18-alpine3.15 as builder
 
 ARG next_public_base_api_url
 ENV NEXT_PUBLIC_BASE_API_URL=$next_public_base_api_url
@@ -9,6 +11,10 @@ WORKDIR /root/app
 COPY package.json yarn.lock /root/app/
 RUN yarn install
 COPY . /root/app/
-RUN yarn build
+RUN yarn generate
 
-CMD ["yarn", "start"]
+# Release
+
+FROM nginx:alpine
+
+COPY --from=builder /root/app/out/ /usr/share/nginx/html/
