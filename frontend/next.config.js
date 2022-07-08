@@ -12,15 +12,6 @@ const nextConfig = {
       unoptimized: true,
     },
   },
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/blocks",
-        permanent: true,
-      },
-    ];
-  },
 };
 
 module.exports = nextConfig;

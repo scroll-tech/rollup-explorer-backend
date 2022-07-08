@@ -1,11 +1,10 @@
 import type { NextPage } from "next";
 import React from "react";
 import { Input } from "antd";
-
-const { Search } = Input;
+import Blocks from "./blocks";
 
 const Home: NextPage = () => {
-  return <div></div>;
+  return <Blocks />;
 };
 
 export default Home;
