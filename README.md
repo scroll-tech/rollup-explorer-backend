@@ -29,3 +29,9 @@
 [rustc-image]: https://img.shields.io/badge/rustc-nightly-blue.svg
 [test-image]: https://github.com/scroll-tech/rollup_explorer/actions/workflows/test.yml/badge.svg
 [test-link]: https://github.com/scroll-tech/rollup_explorer/actions/workflows/test.yml
+
+## Adding Mock Data
+
+Run the following: 
+
+`psql postgres://scroll:scroll2022@localhost:5434/rollup_explorer -f backend/db/tests/test.sql`

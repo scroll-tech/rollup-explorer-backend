@@ -26,7 +26,7 @@ pub async fn run() -> Result<()> {
         .with(Cors::new())
         .data(db_pool);
 
-    Server::new(TcpListener::bind("0.0.0.0:5000"))
+    Server::new(TcpListener::bind("0.0.0.0:5001"))
         .run(app)
         .await?;
 
