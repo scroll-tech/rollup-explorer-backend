@@ -2,7 +2,7 @@ use crate::db::models;
 use poem_openapi::Object;
 use rust_decimal::Decimal;
 
-#[derive(Object)]
+#[derive(Clone, Debug, Object)]
 pub struct L2Block {
     block_height: i64,
     tx_num: i64,
