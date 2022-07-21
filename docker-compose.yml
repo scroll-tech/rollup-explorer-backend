@@ -9,6 +9,7 @@ services:
     volumes:
       - ./docker-data/postgres:/var/lib/postgresql/data
     environment:
+        POSTGRES_DB: "scroll"
         POSTGRES_HOST_AUTH_METHOD: "trust"
         POSTGRES_PASSWORD: "scroll2022"
         POSTGRES_USER: "scroll"

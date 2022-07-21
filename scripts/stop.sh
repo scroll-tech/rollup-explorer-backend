@@ -13,7 +13,7 @@ function kill_tasks() {
 }
 
 function clean_data() {
-  rm -rf scripts/docker-data
+  rm -rf docker-data
 }
 
 kill_tasks

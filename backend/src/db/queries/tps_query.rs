@@ -1,48 +1,78 @@
-use crate::db::models::BlockStatus;
-use crate::db::{table_name, DbPool};
+use crate::db::models::RollupStatus;
+use crate::db::{block_result_query, table_name, DbPool};
 use rust_decimal::Decimal;
-use sqlx::Error::RowNotFound;
 use sqlx::{query_as, Result};
 
+const L1_TPS_WHERE_CLAUSE: &str = "status = $1 and updated_time >= now() - interval '1' hour";
+const L2_TPS_WHERE_CLAUSE: &str = "created_time >= now() - interval '1' hour";
+
 pub async fn get_l1_tps(db_pool: &DbPool) -> Result<Decimal> {
-    let stmt = format!(
-        "select extract(epoch from (now() - min(updated_at))), sum(tx_num)
-        from {} where status = $1 and updated_at >= now() - interval '1' hour",
-        table_name::L2_BLOCK,
-    );
-    let res = query_as::<_, (Option<f64>, Option<Decimal>)>(&stmt)
-        .bind(BlockStatus::Verified)
-        .fetch_one(db_pool)
-        .await;
-    calculate_tps_by_sql_result(res)
+    let interval_secs = l1_tps_interval(db_pool).await?;
+    let ids = l1_tps_ids(db_pool).await?;
+    let tx_num = block_result_query::get_tx_num_by_ids(db_pool, ids).await?;
+    log::debug!("L1 TPS: inteval_secs = {interval_secs}, tx_num = {tx_num}");
+
+    Ok(tx_num.checked_div(interval_secs).unwrap_or(Decimal::ZERO))
 }
 
 pub async fn get_l2_tps(db_pool: &DbPool) -> Result<Decimal> {
-    let stmt = format!(
-        "select extract(epoch from (now() - min(created_at))), sum(tx_num)
-        from {} where created_at >= now() - interval '1' hour",
-        table_name::L2_BLOCK
-    );
-    let res = query_as::<_, (Option<f64>, Option<Decimal>)>(&stmt)
-        .fetch_one(db_pool)
-        .await;
-    calculate_tps_by_sql_result(res)
+    let interval_secs = l2_tps_interval(db_pool).await?;
+    let ids = l2_tps_ids(db_pool).await?;
+    let tx_num = block_result_query::get_tx_num_by_ids(db_pool, ids).await?;
+    log::debug!("L2 TPS: inteval_secs = {interval_secs}, tx_num = {tx_num}");
+
+    Ok(tx_num.checked_div(interval_secs).unwrap_or(Decimal::ZERO))
 }
 
-fn calculate_tps_by_sql_result(
-    sql_result: Result<(Option<f64>, Option<Decimal>)>,
-) -> Result<Decimal> {
-    match sql_result {
-        Ok((secs, tx_num)) => {
-            log::debug!("TPS: secs = {secs:?}, tx_num = {tx_num:?}");
-            let secs = secs
-                .and_then(Decimal::from_f64_retain)
-                .unwrap_or(Decimal::ZERO);
-            Ok(tx_num
-                .and_then(|tn| tn.checked_div(secs))
-                .unwrap_or(Decimal::ZERO))
-        }
-        Err(RowNotFound) => Ok(Decimal::ZERO),
+async fn l1_tps_interval(db_pool: &DbPool) -> Result<Decimal> {
+    let stmt = format!(
+        "select coalesce(extract(epoch from (now() - min(updated_time))), 0) from {} where {}",
+        table_name::ROLLUP_RESULT,
+        L1_TPS_WHERE_CLAUSE,
+    );
+    match query_as::<_, (f64,)>(&stmt)
+        .bind(RollupStatus::Finalized)
+        .fetch_one(db_pool)
+        .await
+    {
+        Ok((secs,)) => Ok(Decimal::from_f64_retain(secs).unwrap_or(Decimal::ZERO)),
         Err(error) => Err(error),
     }
+}
+
+async fn l1_tps_ids(db_pool: &DbPool) -> Result<Vec<i32>> {
+    let stmt = format!(
+        "select number from {} where {}",
+        table_name::ROLLUP_RESULT,
+        L1_TPS_WHERE_CLAUSE,
+    );
+    query_as::<_, (i32,)>(&stmt)
+        .bind(RollupStatus::Finalized)
+        .fetch_all(db_pool)
+        .await
+        .map(|v| v.into_iter().map(|i| i.0).collect())
+}
+
+async fn l2_tps_interval(db_pool: &DbPool) -> Result<Decimal> {
+    let stmt = format!(
+        "select coalesce(extract(epoch from (now() - min(created_time))), 0) from {} where {}",
+        table_name::ROLLUP_RESULT,
+        L2_TPS_WHERE_CLAUSE,
+    );
+    match query_as::<_, (f64,)>(&stmt).fetch_one(db_pool).await {
+        Ok((secs,)) => Ok(Decimal::from_f64_retain(secs).unwrap_or(Decimal::ZERO)),
+        Err(error) => Err(error),
+    }
+}
+
+async fn l2_tps_ids(db_pool: &DbPool) -> Result<Vec<i32>> {
+    let stmt = format!(
+        "select number from {} where {}",
+        table_name::ROLLUP_RESULT,
+        L2_TPS_WHERE_CLAUSE,
+    );
+    query_as::<_, (i32,)>(&stmt)
+        .fetch_all(db_pool)
+        .await
+        .map(|v| v.into_iter().map(|i| i.0).collect())
 }

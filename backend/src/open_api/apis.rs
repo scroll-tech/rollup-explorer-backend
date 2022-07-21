@@ -1,6 +1,6 @@
 use crate::cache::Cache;
-use crate::db::{l2_block_query, tps_query};
-use crate::open_api::objects::L2Block;
+use crate::db::{block_result_query, rollup_result_query, tps_query};
+use crate::open_api::objects::{build_l2_blocks_by_db_results, L2Block};
 use crate::open_api::State;
 use poem::error::InternalServerError;
 use poem::web::Data;
@@ -79,17 +79,19 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let total = l2_block_query::get_total(&state.db_pool)
+        let total = rollup_result_query::get_total(&state.db_pool)
             .await
             .map_err(InternalServerError)?;
 
-        let blocks = l2_block_query::fetch_all(&state.db_pool, offset, limit)
+        let rollup_results = rollup_result_query::fetch_all(&state.db_pool, offset, limit)
             .await
-            .map_err(InternalServerError)?
-            .into_iter()
-            .map(Into::into)
-            .collect();
+            .map_err(InternalServerError)?;
 
+        let ids = rollup_results.iter().map(|rr| rr.number).collect();
+        let block_results = block_result_query::fetch_results_by_ids(&state.db_pool, ids)
+            .await
+            .map_err(InternalServerError)?;
+        let blocks = build_l2_blocks_by_db_results(block_results, rollup_results);
         let response = L2BlocksResponse { total, blocks };
 
         // Save to cache.
@@ -140,7 +142,7 @@ impl Apis {
 
 #[derive(Clone, Debug, Object)]
 struct L2BlocksResponse {
-    total: i64,
+    total: i32,
     blocks: Vec<L2Block>,
 }
 

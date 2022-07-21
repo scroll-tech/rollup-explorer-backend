@@ -1,1 +1,1 @@
-db_url = "postgres://scroll:scroll2022@db:5432/rollup_explorer"
+db_url = "postgres://scroll:scroll2022@db:5432/scroll"

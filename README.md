@@ -4,6 +4,11 @@
 [![Audit Status][audit-image]][audit-link]
 ![Rust Nightly][rustc-image]
 
+## Pre-requisites
+
+Naturally, you will need the [Rust toolchain] installed.
+Besides that, [goose] is necessary for external database migrations of [scroll].
+
 ## Development
 
 - `make start_be`: Start a local `Postgres` docker-container, and `cargo run --bin rollup_explorer`. Then URL `http://0.0.0.0:5000` could be accessed in a Web browser.
@@ -24,9 +29,12 @@
 - This docker image could be tested via command `docker-compose -f docker/docker-compose.yml up -d`. Then access `http://0.0.0.0:5000` in a Web browser.
 
 [//]: # "badges"
+[Rust toolchain]: https://rustup.rs
 [audit-image]: https://github.com/scroll-tech/rollup_explorer/actions/workflows/audit.yml/badge.svg
 [audit-link]: https://github.com/scroll-tech/rollup_explorer/actions/workflows/audit.yml
+[goose]: https://github.com/pressly/goose
 [rustc-image]: https://img.shields.io/badge/rustc-nightly-blue.svg
+[scroll]: https://github.com/scroll-tech/scroll
 [test-image]: https://github.com/scroll-tech/rollup_explorer/actions/workflows/test.yml/badge.svg
 [test-link]: https://github.com/scroll-tech/rollup_explorer/actions/workflows/test.yml
 
