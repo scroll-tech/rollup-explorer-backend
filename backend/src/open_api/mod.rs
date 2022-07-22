@@ -32,7 +32,8 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
         .nest("/", ui)
         .nest("/api", svr)
         .at("/spec", poem::endpoint::make_sync(move |_| spec.clone()))
-        .with(Cors::new())
+        // TODO: Fix to only allow specified origins.
+        .with(Cors::new().allow_origins_fn(|_| true))
         .data(state);
 
     Server::new(TcpListener::bind("0.0.0.0:5001"))
