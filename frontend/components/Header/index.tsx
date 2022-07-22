@@ -22,12 +22,6 @@ const Header: NextPage = () => {
           />
         </Link>
       </div>
-      <Search
-        placeholder="Search by Block, Account, Public key or TX"
-        allowClear
-        onSearch={onSearch}
-        className="!w-400px"
-      />
     </div>
   );
 };

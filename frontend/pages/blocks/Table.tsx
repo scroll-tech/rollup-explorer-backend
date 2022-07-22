@@ -2,17 +2,20 @@ import { Table, Tag } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import type { FilterValue, SorterResult } from "antd/lib/table/interface";
 import React, { useEffect, useState } from "react";
-import { BLOCK_STATUS } from "constants/index";
+import { BLOCK_STATUS, EXPLORER } from "constants/index";
 import Link from "next/link";
 import moment from "moment";
+import clsx from "clsx";
 
 interface DataType {
   block_height: number;
   header_hash: string;
   l1_tx_hash: string;
   status: string;
-  timestamp: string;
+  block_timestamp: string;
   tx_num: number;
+  finalize_tx_hash: string;
+  rollup_tx_hash: string;
 }
 
 interface Params {
@@ -23,61 +26,6 @@ interface Params {
   sortOrder?: string;
 }
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: "Height",
-    dataIndex: "block_height",
-    key: "block_height",
-    render: (text) => <Link href={"#"}>{text}</Link>,
-  },
-  {
-    title: "Header hash",
-    dataIndex: "header_hash",
-    key: "header_hash",
-  },
-  {
-    title: "Status",
-    key: "status",
-    dataIndex: "status",
-    render: (_, { status }) => {
-      let color;
-      switch (status) {
-        case BLOCK_STATUS.VERIFIED:
-          color = "success";
-          break;
-        case BLOCK_STATUS.UNCOMMITTED:
-          color = "warning";
-          break;
-        case BLOCK_STATUS.COMMITTED:
-          color = "processing";
-          break;
-        default:
-          color = "default";
-          break;
-      }
-
-      return (
-        <>
-          <Tag color={color}>{status.toUpperCase()}</Tag>
-        </>
-      );
-    },
-  },
-  {
-    title: "Time",
-    dataIndex: "timestamp",
-    key: "timestamp",
-    render: (_, { timestamp }) => (
-      <>{moment(new Date(+timestamp)).format("MMM. D, YYYY	hh:mm")}</>
-    ),
-  },
-  {
-    title: "Txn",
-    dataIndex: "tx_num",
-    key: "tx_num",
-  },
-];
-
 const App: React.FC = () => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
@@ -85,6 +33,78 @@ const App: React.FC = () => {
     current: 1,
     pageSize: 10,
   });
+  const columns: ColumnsType<DataType> = [
+    {
+      title: "Height",
+      dataIndex: "block_height",
+      key: "block_height",
+      // render: (text) => <Link href={"#"}>{text}</Link>,
+    },
+    {
+      title: "Header hash",
+      dataIndex: "header_hash",
+      key: "header_hash",
+      render: (hash) => (
+        <Link href={`${EXPLORER.L2_EXPLORER}/block/${hash}`}>{hash}</Link>
+      ),
+    },
+    {
+      title: "Status",
+      key: "status",
+      dataIndex: "status",
+      render: (_, { status, finalize_tx_hash, rollup_tx_hash }) => {
+        let color, targetUrl: string;
+
+        switch (status) {
+          case BLOCK_STATUS.FINALIZED:
+            color = "success";
+            targetUrl = `${EXPLORER.L1_EXPLORER}/tx/${finalize_tx_hash}`;
+            break;
+          case BLOCK_STATUS.PRECOMMITTED:
+            color = "warning";
+            break;
+          case BLOCK_STATUS.COMMITTED:
+            targetUrl = `${EXPLORER.L1_EXPLORER}/tx/${rollup_tx_hash}`;
+            color = "processing";
+            break;
+          default:
+            color = "default";
+            break;
+        }
+
+        return (
+          <>
+            <Tag
+              color={color}
+              className={
+                BLOCK_STATUS.PRECOMMITTED === status ? "" : "cursor-pointer"
+              }
+              onClick={() => handleChange(targetUrl)}
+            >
+              {status.toUpperCase()}
+            </Tag>
+          </>
+        );
+      },
+    },
+    {
+      title: "Time",
+      dataIndex: "block_timestamp",
+      key: "block_timestamp",
+      render: (_, { block_timestamp }) => (
+        <>
+          {moment(new Date(+block_timestamp * 1000)).format(
+            "MMM. D, YYYY	hh:mm"
+          )}
+        </>
+      ),
+    },
+    {
+      title: "Txn",
+      dataIndex: "tx_num",
+      key: "tx_num",
+    },
+  ];
 
   const fetchData = (pagination: TablePaginationConfig = {}) => {
     setLoading(true);
@@ -108,6 +128,10 @@ const App: React.FC = () => {
 
   const handleTableChange = (newPagination: TablePaginationConfig) => {
     fetchData(newPagination);
+  };
+
+  const handleChange = (targetUrl: string) => {
+    window.location.href = targetUrl;
   };
 
   return (
