@@ -24,7 +24,7 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
 
     let open_api_addr = &settings.open_api_addr;
     let svr = OpenApiService::new(apis::Apis, "Scroll L2 Explorer", "1.0")
-        .server(format!("http://{open_api_addr}/api"));
+        .server(format!("{open_api_addr}/api"));
 
     let ui = svr.swagger_ui();
     let spec = svr.spec();
