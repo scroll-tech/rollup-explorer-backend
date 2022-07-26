@@ -94,7 +94,7 @@ const App: React.FC = () => {
       render: (_, { block_timestamp }) => (
         <>
           {moment(new Date(+block_timestamp * 1000)).format(
-            "MMM. D, YYYY	hh:mm"
+            "MMM. D, yyyy hh:mm a"
           )}
         </>
       ),
@@ -131,7 +131,9 @@ const App: React.FC = () => {
   };
 
   const handleChange = (targetUrl: string) => {
-    window.location.href = targetUrl;
+    if (targetUrl) {
+      window.location.href = targetUrl;
+    }
   };
 
   return (
