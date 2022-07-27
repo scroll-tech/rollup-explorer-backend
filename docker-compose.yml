@@ -1,5 +1,5 @@
 version: "3"
-name: "rollup_explorer"
+name: "rollup-explorer-backend"
 
 services:
   db:
@@ -20,31 +20,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  backend:
+  rollup_explorer_backend:
     container_name: rollup_explorer_backend
     depends_on:
       - db
     restart: always
     build:
-      context: backend
       dockerfile: Dockerfile
-    image: scrolltech/rollup-explorer-backend
+    image: rollup-explorer-backend
     links:
       - db
     environment:
       OPEN_API_ADDR: "localhost:8600"
     ports:
-      - "8600:5000"
-  frontend:
-    container_name: rollup_explorer_frontend
-    depends_on:
-      - backend
-    restart: always
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    image: scrolltech/rollup-explorer-frontend
-    links:
-      - backend
-    ports:
-      - "8555:3000"
+      - "8600:5001"
