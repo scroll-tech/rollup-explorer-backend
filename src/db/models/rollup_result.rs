@@ -10,6 +10,7 @@ pub enum RollupStatus {
     Committed = 2,
     Finalizing = 3,
     Finalized = 4,
+    FinalizationSkipped = 5,
 }
 
 impl fmt::Display for RollupStatus {

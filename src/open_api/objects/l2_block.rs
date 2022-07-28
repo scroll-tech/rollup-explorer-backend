@@ -31,7 +31,9 @@ pub fn build_l2_blocks_by_db_results(
                 .unwrap_or((0, "".to_string(), Decimal::ZERO));
             let status = match rr.status {
                 RollupStatus::Pending | RollupStatus::Committing => "precommitted".to_string(),
-                RollupStatus::Committed | RollupStatus::Finalizing => "committed".to_string(),
+                RollupStatus::Committed
+                | RollupStatus::Finalizing
+                | RollupStatus::FinalizationSkipped => "committed".to_string(),
                 RollupStatus::Finalized => "finalized".to_string(),
             };
             L2Block {

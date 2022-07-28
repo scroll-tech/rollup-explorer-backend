@@ -22,7 +22,6 @@ jobs:
           toolchain: nightly-2022-05-01
       - uses: Swatinem/rust-cache@v1
       - run: |
-          cd backend
           cargo build --release
           cargo fmt --all -- --check
 
@@ -38,6 +37,4 @@ jobs:
           profile: minimal
           toolchain: nightly-2022-05-01
       - uses: Swatinem/rust-cache@v1
-      - run: |
-          cd backend
-          cargo clippy -- -D warnings
+      - run: cargo clippy -- -D warnings

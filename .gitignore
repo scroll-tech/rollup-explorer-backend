@@ -1,2 +1,2 @@
-docker-data/
-/backend/target
+/docker-data
+/target
