@@ -1,3 +1,6 @@
 [submodule "backend/third-paries/scroll"]
 	path = backend/third-paries/scroll
 	url = git@github.com:scroll-tech/scroll.git
+[submodule "third-paries/scroll"]
+	path = third-paries/scroll
+	url = git@github.com:scroll-tech/scroll.git

@@ -11,7 +11,7 @@ INSERT INTO block_result values (
 
 INSERT INTO rollup_result values (
     1,
-    0,
+    5,
     '0xd90bce2038b722089c11bb734e132d304ed51a903d941d0d4342e5c9b61e2a50',
     '0xa4ee974098af0f19d271f4dbd30b56e61541d000e0bcbb3678398c100c03971f'
 ) ON CONFLICT DO NOTHING;
@@ -533,7 +533,7 @@ INSERT INTO block_result values (
 
 INSERT INTO rollup_result values (
     30,
-    4,
+    5,
     '0xea4e2ef92f7d3f4a0390733964cc0a31d3d5b9bc5ed32972a0fedd356cc2b751',
     '0x9a45a59e53778a984f3a7998a8afa5c499d4932c8334382ae7d3604d63d7f960'
 ) ON CONFLICT DO NOTHING;
