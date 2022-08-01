@@ -30,6 +30,7 @@ pub fn build_l2_blocks_by_db_results(
                 .map(|br| (br.tx_num, br.hash.clone(), br.block_timestamp))
                 .unwrap_or((0, "".to_string(), Decimal::ZERO));
             let status = match rr.status {
+                RollupStatus::Undefined => "unknown".to_string(),
                 RollupStatus::Pending | RollupStatus::Committing => "precommitted".to_string(),
                 RollupStatus::Committed | RollupStatus::Finalizing => "committed".to_string(),
                 RollupStatus::Finalized => "finalized".to_string(),
