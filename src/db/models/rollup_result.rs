@@ -5,12 +5,13 @@ use std::fmt;
 #[derive(sqlx::Type, Clone, Debug, Serialize)]
 #[repr(i32)]
 pub enum RollupStatus {
-    Pending = 0,
-    Committing = 1,
-    Committed = 2,
-    Finalizing = 3,
-    Finalized = 4,
-    FinalizationSkipped = 5,
+    Undefined = 0,
+    Pending,
+    Committing,
+    Committed,
+    Finalizing,
+    Finalized,
+    FinalizationSkipped,
 }
 
 impl fmt::Display for RollupStatus {
