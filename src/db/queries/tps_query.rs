@@ -3,7 +3,8 @@ use crate::db::{block_result_query, table_name, DbPool};
 use rust_decimal::Decimal;
 use sqlx::{query_as, Result};
 
-const L1_TPS_WHERE_CLAUSE: &str = "status in ($1, $2) and updated_time >= now() - interval '1' hour";
+const L1_TPS_WHERE_CLAUSE: &str =
+    "status in ($1, $2) and updated_time >= now() - interval '1' hour";
 const L2_TPS_WHERE_CLAUSE: &str = "created_time >= now() - interval '1' hour";
 
 pub async fn get_l1_tps(db_pool: &DbPool) -> Result<Decimal> {
