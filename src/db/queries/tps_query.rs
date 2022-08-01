@@ -3,7 +3,7 @@ use crate::db::{block_result_query, table_name, DbPool};
 use rust_decimal::Decimal;
 use sqlx::{query_as, Result};
 
-const L1_TPS_WHERE_CLAUSE: &str = "status = $1 and updated_time >= now() - interval '1' hour";
+const L1_TPS_WHERE_CLAUSE: &str = "status in ($1, $2) and updated_time >= now() - interval '1' hour";
 const L2_TPS_WHERE_CLAUSE: &str = "created_time >= now() - interval '1' hour";
 
 pub async fn get_l1_tps(db_pool: &DbPool) -> Result<Decimal> {
@@ -31,6 +31,7 @@ async fn l1_tps_interval(db_pool: &DbPool) -> Result<Decimal> {
         L1_TPS_WHERE_CLAUSE,
     );
     match query_as::<_, (f64,)>(&stmt)
+        .bind(RollupStatus::FinalizationSkipped)
         .bind(RollupStatus::Finalized)
         .fetch_one(db_pool)
         .await
@@ -47,6 +48,7 @@ async fn l1_tps_ids(db_pool: &DbPool) -> Result<Vec<i32>> {
         L1_TPS_WHERE_CLAUSE,
     );
     query_as::<_, (i32,)>(&stmt)
+        .bind(RollupStatus::FinalizationSkipped)
         .bind(RollupStatus::Finalized)
         .fetch_all(db_pool)
         .await
