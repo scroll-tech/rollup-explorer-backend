@@ -5,11 +5,13 @@ use std::fmt;
 #[derive(sqlx::Type, Clone, Debug, Serialize)]
 #[repr(i32)]
 pub enum BlockStatus {
-    Unassigned = 0,
-    Assigned = 1,
-    Proved = 2,
-    Verified = 3,
-    Submitted = 4,
+    Undefined = 0,
+    Unassigned,
+    Skipped,
+    Assigned,
+    Proved,
+    Verified,
+    Failed,
 }
 
 impl fmt::Display for BlockStatus {
