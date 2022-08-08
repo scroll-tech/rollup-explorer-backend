@@ -10,6 +10,7 @@ use std::sync::Arc;
 
 mod apis;
 mod objects;
+mod responses;
 
 #[derive(Clone, Debug)]
 struct State {

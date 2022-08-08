@@ -29,13 +29,7 @@ pub fn build_l2_blocks_by_db_results(
                 .get(&id)
                 .map(|br| (br.tx_num, br.hash.clone(), br.block_timestamp))
                 .unwrap_or((0, "".to_string(), Decimal::ZERO));
-            let status = match rr.status {
-                RollupStatus::Undefined => "unknown".to_string(),
-                RollupStatus::Pending | RollupStatus::Committing => "precommitted".to_string(),
-                RollupStatus::Committed | RollupStatus::Finalizing => "committed".to_string(),
-                RollupStatus::Finalized => "finalized".to_string(),
-                RollupStatus::FinalizationSkipped => "skipped".to_string(),
-            };
+            let status = rollup_status_to_str(&rr.status).to_string();
             L2Block {
                 block_height: id,
                 tx_num,
@@ -47,4 +41,14 @@ pub fn build_l2_blocks_by_db_results(
             }
         })
         .collect()
+}
+
+pub fn rollup_status_to_str(status: &RollupStatus) -> &str {
+    match status {
+        RollupStatus::Undefined => "unknown",
+        RollupStatus::Pending | RollupStatus::Committing => "precommitted",
+        RollupStatus::Committed | RollupStatus::Finalizing => "committed",
+        RollupStatus::Finalized => "finalized",
+        RollupStatus::FinalizationSkipped => "skipped",
+    }
 }

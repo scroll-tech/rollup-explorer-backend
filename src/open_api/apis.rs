@@ -1,19 +1,19 @@
-use crate::cache::Cache;
 use crate::db::{block_result_query, rollup_result_query, tps_query};
-use crate::open_api::objects::{build_l2_blocks_by_db_results, L2Block};
+use crate::open_api::responses::{L2BlocksResponse, LastBlockNumsResponse, TpsResponse};
 use crate::open_api::State;
 use poem::error::InternalServerError;
 use poem::web::Data;
 use poem::Result;
 use poem_openapi::param::Query;
 use poem_openapi::payload::Json;
-use poem_openapi::{Object, OpenApi};
-use rust_decimal::Decimal;
+use poem_openapi::OpenApi;
 use std::sync::Arc;
 
 // Expired seconds of cache data.
 const L2_BLOCKS_CACHE_EXPIRED_SECS: u64 = 1;
+const LAST_BLOCK_NUMS_CACHE_EXPIRED_SECS: u64 = 1;
 const TPS_CACHE_EXPIRED_SECS: u64 = 10;
+
 // Query parameter `page` starts from `1`, and default `per_page` is 20.
 const DEFAULT_PER_PAGE: u64 = 20;
 
@@ -24,7 +24,7 @@ impl Apis {
     #[oai(path = "/l1_tps", method = "get")]
     async fn l1_tps(&self, state: Data<&State>) -> Result<Json<TpsResponse>> {
         // Return directly if cached.
-        if let Some(response) = get_tps_from_cache(state.cache.as_ref(), "l1_tps").await {
+        if let Some(response) = TpsResponse::from_cache(state.cache.as_ref(), "l1_tps").await {
             log::debug!("OpenAPI - Get L1 TPS from Cache: {response:?}");
             return Ok(Json(response));
         };
@@ -33,10 +33,7 @@ impl Apis {
             .await
             .map_err(InternalServerError)?;
 
-        // Only keep two decimal digits.
-        let response = TpsResponse {
-            tps: tps.round_dp(2),
-        };
+        let response = TpsResponse::new(tps);
 
         // Save to cache.
         if let Err(error) = state
@@ -67,13 +64,7 @@ impl Apis {
 
         // Return directly if cached.
         let cache_key = format!("l2_block-{offset}-{limit}");
-        if let Some(response) = state
-            .cache
-            .get(&cache_key)
-            .await
-            .ok()
-            .flatten()
-            .and_then(|any| any.downcast_ref::<L2BlocksResponse>().cloned())
+        if let Some(response) = L2BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await
         {
             log::debug!("OpenAPI - Get L2 blocks from Cache: {response:?}");
             return Ok(Json(response));
@@ -91,8 +82,8 @@ impl Apis {
         let block_results = block_result_query::fetch_results_by_ids(&state.db_pool, ids)
             .await
             .map_err(InternalServerError)?;
-        let blocks = build_l2_blocks_by_db_results(block_results, rollup_results);
-        let response = L2BlocksResponse { total, blocks };
+
+        let response = L2BlocksResponse::new(total, block_results, rollup_results);
 
         // Save to cache.
         if let Err(error) = state
@@ -113,7 +104,7 @@ impl Apis {
     #[oai(path = "/l2_tps", method = "get")]
     async fn l2_tps(&self, state: Data<&State>) -> Result<Json<TpsResponse>> {
         // Return directly if cached.
-        if let Some(response) = get_tps_from_cache(state.cache.as_ref(), "l2_tps").await {
+        if let Some(response) = TpsResponse::from_cache(state.cache.as_ref(), "l2_tps").await {
             log::debug!("OpenAPI - Get L2 TPS from Cache: {response:?}");
             return Ok(Json(response));
         };
@@ -122,10 +113,7 @@ impl Apis {
             .await
             .map_err(InternalServerError)?;
 
-        // Only keep two decimal digits.
-        let response = TpsResponse {
-            tps: tps.round_dp(2),
-        };
+        let response = TpsResponse::new(tps);
 
         // Save to cache.
         if let Err(error) = state
@@ -138,24 +126,35 @@ impl Apis {
 
         Ok(Json(response))
     }
-}
 
-#[derive(Clone, Debug, Object)]
-struct L2BlocksResponse {
-    total: i32,
-    blocks: Vec<L2Block>,
-}
+    #[oai(path = "/last_block_nums", method = "get")]
+    async fn last_block_nums(&self, state: Data<&State>) -> Result<Json<LastBlockNumsResponse>> {
+        // Return directly if cached.
+        if let Some(response) =
+            LastBlockNumsResponse::from_cache(&state.cache, "last_block_nums").await
+        {
+            log::debug!("OpenAPI - Get last block numbers from Cache: {response:?}");
+            return Ok(Json(response));
+        };
 
-#[derive(Clone, Debug, Object)]
-struct TpsResponse {
-    tps: Decimal,
-}
+        let status_nums = rollup_result_query::get_status_max_nums(&state.db_pool)
+            .await
+            .map_err(InternalServerError)?;
+        let response = LastBlockNumsResponse::new(status_nums);
 
-async fn get_tps_from_cache(cache: &Cache, cache_key: &str) -> Option<TpsResponse> {
-    cache
-        .get(cache_key)
-        .await
-        .ok()
-        .flatten()
-        .and_then(|any| any.downcast_ref::<TpsResponse>().cloned())
+        // Save to cache.
+        if let Err(error) = state
+            .cache
+            .set(
+                "last_block_nums",
+                Arc::new(response.clone()),
+                LAST_BLOCK_NUMS_CACHE_EXPIRED_SECS,
+            )
+            .await
+        {
+            log::error!("OpenAPI - Failed to save cache for last block numbers: {error}");
+        }
+
+        Ok(Json(response))
+    }
 }
