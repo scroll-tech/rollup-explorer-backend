@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 use serde::Serialize;
 use std::fmt;
 
-#[derive(sqlx::Type, Clone, Debug, Serialize)]
+#[derive(sqlx::Type, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 #[repr(i32)]
 pub enum RollupStatus {
     Undefined = 0,
