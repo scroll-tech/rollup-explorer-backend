@@ -26,6 +26,14 @@ impl LastBlockNumsResponse {
             }
         }
 
+        // Set `committed` number as maximum number of both committed and
+        // finalized blocks.
+        committed_num = committed_num.max(finalized_num);
+
+        // Set `pre-committed` number as maximum number of all pre-committed,
+        // committed and finalized blocks.
+        precommitted_num = precommitted_num.max(committed_num);
+
         Self {
             committed_num,
             precommitted_num,
