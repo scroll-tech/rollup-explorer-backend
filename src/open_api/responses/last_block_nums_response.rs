@@ -19,11 +19,13 @@ impl LastBlockNumsResponse {
 
         for (status, num) in status_nums.into_iter() {
             match rollup_status_to_str(&status) {
-                "precommitted" => precommitted_num = precommitted_num.max(num),
                 "committed" => committed_num = committed_num.max(num),
                 "finalized" => finalized_num = finalized_num.max(num),
                 _ => (),
             }
+
+            // Set `precommitted` number to the maximum number of all blocks.
+            precommitted_num = precommitted_num.max(num);
         }
 
         Self {
