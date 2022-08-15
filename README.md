@@ -11,7 +11,7 @@ Besides that, [goose] is necessary for external database migrations of [scroll].
 
 ## Development
 
-- `make start`: Start a local `Postgres` docker-container, and `cargo run --bin rollup_explorer`. Then URL `http://0.0.0.0:8600` could be accessed in a Web browser.
+- `make start`: Start a local `Postgres` docker-container, and `cargo run --bin rollup_explorer`. Then URL `http://0.0.0.0:5001` could be accessed in a Web browser.
 
 - `make stop`: Stop running `rollup_explorer` processes and `Postgres` docker-container. The `Postgres` data should also be cleared via deleting folder `docker-data`.
 
