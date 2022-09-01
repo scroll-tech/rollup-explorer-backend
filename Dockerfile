@@ -1,6 +1,6 @@
 # Build
 
-FROM scrolltech/rust-builder as builder
+FROM scrolltech/rust-alpine-builder:latest as builder
 
 RUN mkdir -p /root/src
 ADD . /root/src
