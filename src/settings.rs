@@ -2,9 +2,9 @@ use anyhow::{anyhow, Result};
 use config::{Config, Environment, File};
 use serde::Deserialize;
 use std::env;
-use std::lazy::SyncOnceCell;
+use std::sync::OnceLock;
 
-static SETTINGS: SyncOnceCell<Settings> = SyncOnceCell::new();
+static SETTINGS: OnceLock<Settings> = OnceLock::new();
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {

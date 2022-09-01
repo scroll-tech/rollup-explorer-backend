@@ -1,8 +1,6 @@
 # Build
 
-FROM rustlang/rust:nightly-alpine3.15 as builder
-
-RUN apk add --no-cache musl-dev
+FROM scrolltech/rust-alpine-builder:latest as builder
 
 RUN mkdir -p /root/src
 ADD . /root/src
