@@ -38,6 +38,7 @@ pub fn last_finalized_monitor_job(cache: Arc<Cache>, db_pool: Arc<DbPool>) -> Re
                         // Return previous `committed` ID, and set it to cache again to avoid expired.
                         Some(old_committed_id)
                     } else {
+                        // Get new `next-committed` ID from DB.
                         get_committed_id_from_db(db_pool, last_finalized_id + 1)
                             .await
                             .expect("Failed to get next committed ID from DB in last_finalized_monitor_job")
