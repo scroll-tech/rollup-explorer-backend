@@ -1,6 +1,5 @@
 use crate::cache::Cache;
 use crate::db::models::RollupStatus;
-use crate::open_api::objects::rollup_status_to_str;
 use poem_openapi::Object;
 use std::collections::HashMap;
 
@@ -18,7 +17,7 @@ impl LastBlockNumsResponse {
         let mut finalized_num = 0;
 
         for (status, num) in status_nums.into_iter() {
-            match rollup_status_to_str(&status) {
+            match status.map_to_str() {
                 "precommitted" => precommitted_num = precommitted_num.max(num),
                 "committed" => committed_num = committed_num.max(num),
                 "finalized" => finalized_num = finalized_num.max(num),

@@ -1,4 +1,4 @@
-use crate::db::models::{BlockResult, RollupResult, RollupStatus};
+use crate::db::models::{BlockResult, RollupResult};
 use poem_openapi::Object;
 use rust_decimal::Decimal;
 use std::collections::HashMap;
@@ -29,7 +29,7 @@ pub fn build_l2_blocks_by_db_results(
                 .get(&id)
                 .map(|br| (br.tx_num, br.hash.clone(), br.block_timestamp))
                 .unwrap_or((0, "".to_string(), Decimal::ZERO));
-            let status = rollup_status_to_str(&rr.status).to_string();
+            let status = rr.status.map_to_str().to_string();
             L2Block {
                 block_height: id,
                 tx_num,
@@ -41,14 +41,4 @@ pub fn build_l2_blocks_by_db_results(
             }
         })
         .collect()
-}
-
-pub fn rollup_status_to_str(status: &RollupStatus) -> &str {
-    match status {
-        RollupStatus::Undefined => "unknown",
-        RollupStatus::Pending | RollupStatus::Committing => "precommitted",
-        RollupStatus::Committed | RollupStatus::Finalizing => "committed",
-        RollupStatus::Finalized => "finalized",
-        RollupStatus::FinalizationSkipped => "skipped",
-    }
 }

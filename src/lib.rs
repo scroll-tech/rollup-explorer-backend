@@ -2,6 +2,7 @@
 
 pub mod cache;
 pub mod db;
+pub mod job_scheduler;
 pub mod open_api;
 pub mod settings;
 
