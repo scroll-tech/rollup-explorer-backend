@@ -26,4 +26,6 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - run: |
           cargo install cargo-audit
-          cargo audit --deny warnings --ignore RUSTSEC-2020-0071
+          cargo audit --deny warnings
+          --ignore RUSTSEC-2020-0071
+          --ignore RUSTSEC-2021-0141
