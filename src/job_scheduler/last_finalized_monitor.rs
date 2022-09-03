@@ -1,7 +1,7 @@
 use crate::cache::Cache;
 use crate::db::models::RollupStatus;
 use crate::db::{rollup_result_query, DbPool};
-use crate::Settings;
+use crate::{slack, Settings};
 use anyhow::Result;
 use std::sync::Arc;
 use std::time::Duration;
@@ -32,8 +32,17 @@ pub fn last_finalized_monitor_job(cache: Arc<Cache>, db_pool: Arc<DbPool>) -> Re
                 // Get previous `next-committed` ID from cache.
                 let old_committed_id = get_committed_id_from_cache(cache.clone()).await;
                 let new_committed_id =
-                    if let Some(old_committed_id) = old_committed_id && old_committed_id == last_finalized_id + 1 {
-                        // TODO: Notify this delayed `committed` ID to a Slack channel.
+                    if let Some(old_committed_id) = old_committed_id
+                        && old_committed_id == last_finalized_id + 1 {
+                        // Notify this delayed `committed` ID to a Slack channel.
+                        let msg = format!(
+                            "Last 'finalized' block's next 'committed' block stayed for more than \
+                            {job_interval_secs}s: last_finalized_id = '{last_finalized_id}', \
+                            next_committed_id = '{old_committed_id}'.",
+                        );
+                        slack::notify(&msg)
+                            .await
+                            .expect("Failed to notify to Slack channel in last_finalized_monitor_job");
 
                         // Return previous `committed` ID, and set it to cache again to avoid expired.
                         Some(old_committed_id)

@@ -1,7 +1,7 @@
 use crate::cache::Cache;
 use crate::db::models::RollupStatus;
 use crate::db::{rollup_result_query, DbPool};
-use crate::Settings;
+use crate::{slack, Settings};
 use anyhow::Result;
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -28,8 +28,17 @@ pub fn precommitted_monitor_job(cache: Arc<Cache>, db_pool: Arc<DbPool>) -> Resu
                 // Get previous `precommitted` IDs from cache.
                 let old_ids = get_ids_from_cache(cache.clone()).await;
 
-                let _delayed_ids: Vec<_> = old_ids.intersection(&new_ids).collect();
-                // TODO: Notify deplayed IDs to a Slack channel.
+                let delayed_ids: Vec<_> = old_ids.intersection(&new_ids).collect();
+                // Notify deplayed `precommitted` IDs to a Slack channel.
+                if !delayed_ids.is_empty() {
+                    let msg = format!(
+                        "'Precommitted' blocks stayed for more than {job_interval_secs}s: \
+                        committed_ids = '{delayed_ids:?}.",
+                    );
+                    slack::notify(&msg)
+                        .await
+                        .expect("Failed to notify to Slack channel in precommitted_monitor_job");
+                }
 
                 let cache_expired_secs = job_interval_secs * 3 / 2;
                 set_ids_to_cache(cache, new_ids, cache_expired_secs)

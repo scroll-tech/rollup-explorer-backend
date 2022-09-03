@@ -5,6 +5,7 @@ pub mod db;
 pub mod job_scheduler;
 pub mod open_api;
 pub mod settings;
+pub mod slack;
 
 pub use cache::Cache;
 pub use settings::Settings;
