@@ -17,12 +17,12 @@ pub async fn start(cache: Arc<Cache>) -> Result<JobScheduler> {
 
     let scheduler = JobScheduler::new().await?;
 
-    scheduler
-        .add(last_finalized_monitor_job(cache.clone(), db_pool.clone())?)
-        .await?;
-    scheduler
-        .add(precommitted_monitor_job(cache, db_pool)?)
-        .await?;
+    for job in last_finalized_monitor_jobs(cache.clone(), db_pool.clone())? {
+        scheduler.add(job).await?;
+    }
+    for job in precommitted_monitor_jobs(cache, db_pool)? {
+        scheduler.add(job).await?;
+    }
 
     scheduler.shutdown_on_ctrl_c();
     scheduler.start().await?;

@@ -22,5 +22,7 @@ async fn main() -> Result<()> {
     log::debug!("Stop job scheduler");
     job_scheduler::stop(job_scheduler).await?;
 
-    Arc::get_mut(&mut cache).unwrap().stop().await
+    let _ = Arc::get_mut(&mut cache).unwrap().stop().await;
+
+    Ok(())
 }

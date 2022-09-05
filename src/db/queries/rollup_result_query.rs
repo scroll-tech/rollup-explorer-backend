@@ -56,9 +56,9 @@ pub async fn get_last_id_of_statuses(
         table_name::ROLLUP_RESULT,
     );
     let statuses: Vec<i32> = statuses.iter().map(Into::into).collect();
-    query_scalar::<_, Option<i32>>(&stmt)
+    query_scalar::<_, i32>(&stmt)
         .bind(&statuses)
-        .fetch_one(db_pool)
+        .fetch_optional(db_pool)
         .await
 }
 
