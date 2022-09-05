@@ -7,6 +7,7 @@ use poem::middleware::Cors;
 use poem::{EndpointExt, Route, Server};
 use poem_openapi::OpenApiService;
 use std::sync::Arc;
+use std::time::Duration;
 
 mod apis;
 mod objects;
@@ -38,7 +39,13 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
         .data(state);
 
     Server::new(TcpListener::bind("0.0.0.0:5001"))
-        .run(app)
+        .run_with_graceful_shutdown(
+            app,
+            async move {
+                let _ = tokio::signal::ctrl_c().await;
+            },
+            Some(Duration::from_secs(5)),
+        )
         .await?;
 
     Ok(())

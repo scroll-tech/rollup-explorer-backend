@@ -18,8 +18,9 @@ async fn main() -> Result<()> {
 
     log::debug!("Start Open API");
     open_api::run(cache.clone()).await?;
-    Arc::get_mut(&mut cache).unwrap().stop().await?;
 
     log::debug!("Stop job scheduler");
-    job_scheduler::stop(job_scheduler).await
+    job_scheduler::stop(job_scheduler).await?;
+
+    Arc::get_mut(&mut cache).unwrap().stop().await
 }
