@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
     branches:
       - main
+      - staging
 
 jobs:
   fmt:
@@ -19,7 +21,7 @@ jobs:
           components: rustfmt
           override: true
           profile: minimal
-          toolchain: nightly-2022-05-01
+          toolchain: nightly-2022-07-26
       - uses: Swatinem/rust-cache@v1
       - run: |
           cargo build --release
@@ -35,6 +37,6 @@ jobs:
           components: clippy
           override: true
           profile: minimal
-          toolchain: nightly-2022-05-01
+          toolchain: nightly-2022-07-26
       - uses: Swatinem/rust-cache@v1
       - run: cargo clippy -- -D warnings

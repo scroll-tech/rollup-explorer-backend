@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - staging
     paths:
       - Cargo.lock
   pull_request:
     branches:
       - main
+      - staging
     paths:
       - Cargo.lock
 
@@ -22,7 +24,7 @@ jobs:
         with:
           override: true
           profile: minimal
-          toolchain: nightly-2022-05-01
+          toolchain: nightly-2022-07-26
       - uses: Swatinem/rust-cache@v1
       - run: |
           cargo install cargo-audit

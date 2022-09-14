@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
     branches:
       - main
+      - staging
 
 jobs:
   unit-test:
@@ -18,7 +20,7 @@ jobs:
         with:
           override: true
           profile: minimal
-          toolchain: nightly-2022-05-01
+          toolchain: nightly-2022-07-26
       - uses: Swatinem/rust-cache@v1
       - uses: taiki-e/install-action@nextest
       - run: cargo nextest run --all

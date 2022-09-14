@@ -1,12 +1,17 @@
 # Build
 
-FROM rustlang/rust:nightly-alpine3.15 as builder
+FROM scrolltech/rust-alpine-builder:latest AS chef
+WORKDIR app
 
-RUN apk add --no-cache musl-dev
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-RUN mkdir -p /root/src
-ADD . /root/src
-RUN cd /root/src && cargo build --release
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+COPY . .
+RUN cargo build --release
 
 # Release
 
@@ -16,9 +21,9 @@ ENV OPEN_API_ADDR=$open_api_addr
 ENV RUN_MODE="production"
 
 RUN mkdir -p /root/config
-COPY --from=builder /root/src/.env /root/
-COPY --from=builder /root/src/config/ /root/config/
-COPY --from=builder /root/src/target/release/rollup_explorer /bin/
+COPY --from=builder /app/.env /root/
+COPY --from=builder /app/config/ /root/config/
+COPY --from=builder /app/target/release/rollup_explorer /bin/
 
 WORKDIR /root
 
