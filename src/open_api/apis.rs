@@ -1,5 +1,5 @@
-use crate::db::{block_result_query, rollup_result_query, tps_query};
-use crate::open_api::responses::{L2BlocksResponse, LastBlockNumsResponse, TpsResponse};
+use crate::db::*;
+use crate::open_api::responses::*;
 use crate::open_api::State;
 use poem::error::InternalServerError;
 use poem::web::Data;
@@ -13,6 +13,7 @@ use std::sync::Arc;
 const L2_BLOCKS_CACHE_EXPIRED_SECS: u64 = 1;
 const LAST_BLOCK_NUMS_CACHE_EXPIRED_SECS: u64 = 1;
 const TPS_CACHE_EXPIRED_SECS: u64 = 10;
+const TX_HISTORY_CACHE_EXPIRED_SECS: u64 = 10;
 
 // Query parameter `page` starts from `1`, and default `per_page` is 20.
 const DEFAULT_PER_PAGE: u64 = 20;
@@ -153,6 +154,46 @@ impl Apis {
             .await
         {
             log::error!("OpenAPI - Failed to save cache for last block numbers: {error}");
+        }
+
+        Ok(Json(response))
+    }
+
+    #[oai(path = "/tx_history", method = "get")]
+    async fn tx_history(
+        &self,
+        state: Data<&State>,
+        sender: Query<String>,
+        event: Query<Option<String>>,
+    ) -> Result<Json<TxHistoryResponse>> {
+        let sender = sender.0;
+        let event = event.0.into();
+        // Return directly if cached.
+        let cache_key = format!("tx_history-{sender}-{event}");
+        if let Some(response) =
+            TxHistoryResponse::from_cache(state.cache.as_ref(), &cache_key).await
+        {
+            log::debug!("OpenAPI - Get transaction history from Cache: {response:?}");
+            return Ok(Json(response));
+        };
+
+        let layer_msgs = layer_msg_query::fetch_all(&state.db_pool, &event, &sender)
+            .await
+            .map_err(InternalServerError)?;
+
+        let response = TxHistoryResponse::new(layer_msgs);
+
+        // Save to cache.
+        if let Err(error) = state
+            .cache
+            .set(
+                &cache_key,
+                Arc::new(response.clone()),
+                TX_HISTORY_CACHE_EXPIRED_SECS,
+            )
+            .await
+        {
+            log::error!("OpenAPI - Failed to save cache for transaction history: {error}");
         }
 
         Ok(Json(response))

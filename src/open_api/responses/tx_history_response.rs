@@ -1,18 +1,17 @@
 use crate::cache::Cache;
+use crate::db::models::LayerMsg;
+use crate::open_api::objects::TxHistoryItem;
 use poem_openapi::Object;
-use rust_decimal::Decimal;
 
 #[derive(Clone, Debug, Object)]
-pub struct TpsResponse {
-    tps: Decimal,
+pub struct TxHistoryResponse {
+    items: Vec<TxHistoryItem>,
 }
 
-impl TpsResponse {
-    pub fn new(tps: Decimal) -> Self {
-        // Only keep two decimal digits.
-        Self {
-            tps: tps.round_dp(2),
-        }
+impl TxHistoryResponse {
+    pub fn new(msgs: Vec<LayerMsg>) -> Self {
+        let items = msgs.into_iter().map(Into::into).collect();
+        Self { items }
     }
 
     pub async fn from_cache(cache: &Cache, cache_key: &str) -> Option<Self> {
