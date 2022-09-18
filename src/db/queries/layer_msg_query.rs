@@ -66,7 +66,7 @@ async fn fetch_all_from_table(
 ) -> Result<Vec<LayerMsg>> {
     let stmt = format!(
         "select
-            height, status, layer1_hash, layer2_hash, created_time, $1 event
+            height, status, layer1_hash, layer2_hash, created_time, $1 \"event\"
         from {} where sender = $2 order by created_time desc",
         table_name,
     );

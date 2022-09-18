@@ -3,6 +3,9 @@
 docker:
 	docker compose -f docker-compose.yml build
 
+import_mock_data:
+	./scripts/import_mock_data.sh
+
 lint:
 	cargo fmt --all && cargo clippy -- -D warnings
 	shfmt -i 2 -sr -w scripts/*.sh
