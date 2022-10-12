@@ -33,4 +33,4 @@ Besides that, [goose] is necessary for external database migrations of [scroll-n
 
 Run the following:
 
-`psql postgres://postgres:scroll2022@localhost:5434/scroll -f db/tests/test.sql`
+`psql postgres://scroll:scroll2022@localhost:5434/scroll -f db/tests/test.sql`
