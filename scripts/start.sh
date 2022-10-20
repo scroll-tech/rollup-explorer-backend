@@ -4,7 +4,7 @@ set -uex
 export RUST_BACKTRACE=full
 
 function handle_submodules() {
-  git submodule update --init --recursive
+  git submodule update
   # if [ -z ${CI+x} ]; then git pull --recurse-submodules; fi
 }
 
