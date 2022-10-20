@@ -1,3 +1,6 @@
 [submodule "third-parties/scroll-node"]
 	path = third-parties/scroll-node
 	url = git@github.com:scroll-tech/scroll-node.git
+[submodule "third-parties/scroll"]
+	path = third-parties/scroll
+	url = git@github.com:scroll-tech/scroll.git
