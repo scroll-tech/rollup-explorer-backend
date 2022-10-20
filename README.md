@@ -7,7 +7,7 @@
 ## Pre-requisites
 
 Naturally, you will need the [Rust toolchain] installed.
-Besides that, [goose] is necessary for external database migrations of [scroll/database].
+Besides that, [goose] is necessary for external database migrations in `database` dictionary of [scroll].
 
 ## Development
 
