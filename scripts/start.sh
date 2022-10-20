@@ -9,7 +9,7 @@ function handle_submodules() {
 }
 
 function db_migrate() {
-  goose -dir "third-parties/scroll-node/store/migrate/migrations" \
+  goose -dir "third-parties/scroll/database/migrate/migrations" \
     postgres "postgres://scroll:scroll2022@localhost:5434/scroll?sslmode=disable" \
     up
 }
