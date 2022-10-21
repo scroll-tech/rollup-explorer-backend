@@ -7,7 +7,7 @@
 ## Pre-requisites
 
 Naturally, you will need the [Rust toolchain] installed.
-Besides that, [goose] is necessary for external database migrations of [scroll-node].
+Besides that, [goose] is necessary for external database migrations in `database` dictionary of [scroll].
 
 ## Development
 
@@ -25,7 +25,7 @@ Besides that, [goose] is necessary for external database migrations of [scroll-n
 [audit-link]: https://github.com/scroll-tech/rollup-explorer-backend/actions/workflows/audit.yml
 [goose]: https://github.com/pressly/goose
 [rustc-image]: https://img.shields.io/badge/rustc-nightly-blue.svg
-[scroll-node]: https://github.com/scroll-tech/scroll-node
+[scroll]: https://github.com/scroll-tech/scroll
 [test-image]: https://github.com/scroll-tech/rollup-explorer-backend/actions/workflows/test.yml/badge.svg
 [test-link]: https://github.com/scroll-tech/rollup-explorer-backend/actions/workflows/test.yml
 
