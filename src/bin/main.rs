@@ -1,5 +1,5 @@
 use anyhow::Result;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use rollup_explorer::{cache, open_api, Settings};
 use std::sync::Arc;
 
