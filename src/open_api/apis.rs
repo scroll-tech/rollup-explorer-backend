@@ -10,6 +10,14 @@ use poem_openapi::payload::Json;
 use poem_openapi::OpenApi;
 use std::sync::Arc;
 
+// Macro used to log error with right line number.
+macro_rules! api_err {
+    ($err:expr) => {{
+        log::error!("{:?}", $err);
+        InternalServerError($err)
+    }};
+}
+
 pub(crate) struct Apis;
 
 #[OpenApi]
@@ -39,10 +47,10 @@ impl Apis {
 
         let total = block_batch_query::get_total(&state.db_pool)
             .await
-            .map_err(InternalServerError)?;
+            .map_err(|e| api_err!(e))?;
         let block_batches = block_batch_query::fetch_all(&state.db_pool, offset, limit)
             .await
-            .map_err(InternalServerError)?;
+            .map_err(|e| api_err!(e))?;
         let response = BatchesResponse::new(total, block_batches);
 
         // Save to cache.
@@ -78,7 +86,7 @@ impl Apis {
 
         let block_results = block_result_query::fetch_all(&state.db_pool, &batch_id)
             .await
-            .map_err(InternalServerError)?;
+            .map_err(|e| api_err!(e))?;
         let response = BlocksResponse::new(block_results);
 
         // Save to cache.
@@ -112,7 +120,7 @@ impl Apis {
 
         let status_indexes = block_batch_query::get_max_status_indexes(&state.db_pool)
             .await
-            .map_err(InternalServerError)?;
+            .map_err(|e| api_err!(e))?;
         let response = LastBatchIndexesResponse::new(status_indexes);
 
         // Save to cache.

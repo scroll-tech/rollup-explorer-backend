@@ -6,7 +6,10 @@ use std::sync::Arc;
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    env_logger::init();
+    tracing_subscriber::fmt()
+        .with_file(true)
+        .with_line_number(true)
+        .init();
 
     Settings::init()?;
     log::debug!("{:?}", Settings::get());

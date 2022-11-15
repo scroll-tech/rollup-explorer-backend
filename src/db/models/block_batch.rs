@@ -8,7 +8,7 @@ pub struct BlockBatch {
     pub start_block_number: i64,
     pub end_block_number: i64,
     pub total_tx_num: i64,
-    pub rollup_status: i32,
+    pub rollup_status: i64,
     pub commit_tx_hash: Option<String>,
     pub finalize_tx_hash: Option<String>,
     pub created_at: NaiveDateTime,

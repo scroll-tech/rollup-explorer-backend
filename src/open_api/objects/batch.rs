@@ -25,8 +25,8 @@ impl fmt::Display for RollupStatus {
     }
 }
 
-impl From<i32> for RollupStatus {
-    fn from(i: i32) -> Self {
+impl From<i64> for RollupStatus {
+    fn from(i: i64) -> Self {
         match i {
             1 | 2 => Self::Precommitted,
             3 | 4 => Self::Committed,

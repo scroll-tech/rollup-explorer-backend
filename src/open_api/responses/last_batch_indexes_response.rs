@@ -10,7 +10,7 @@ pub struct LastBatchIndexesResponse {
 }
 
 impl LastBatchIndexesResponse {
-    pub fn new(status_indexes: HashMap<i32, i64>) -> Self {
+    pub fn new(status_indexes: HashMap<i64, i64>) -> Self {
         let mut committed_index = 0;
         let mut finalized_index = 0;
 
