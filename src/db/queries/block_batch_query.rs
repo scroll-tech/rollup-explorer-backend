@@ -1,5 +1,5 @@
 use crate::db::models::BlockBatch;
-use crate::db::{table_name, DbPool};
+use crate::db::{table_name, DbPool, RollupStatusType};
 use sqlx::{query_as, query_scalar, Result};
 use std::collections::HashMap;
 
@@ -36,12 +36,12 @@ pub async fn get_total(db_pool: &DbPool) -> Result<i64> {
     }
 }
 
-pub async fn get_max_status_indexes(db_pool: &DbPool) -> Result<HashMap<i64, i64>> {
+pub async fn get_max_status_indexes(db_pool: &DbPool) -> Result<HashMap<RollupStatusType, i64>> {
     let stmt = format!(
         "select rollup_status, max(index) FROM {} group by rollup_status",
         table_name::BLOCK_BATCH,
     );
-    query_as::<_, (i64, i64)>(&stmt)
+    query_as::<_, (RollupStatusType, i64)>(&stmt)
         .fetch_all(db_pool)
         .await
         .map(|v| v.into_iter().collect())

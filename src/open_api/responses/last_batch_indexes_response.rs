@@ -1,4 +1,5 @@
 use crate::cache::Cache;
+use crate::db::RollupStatusType;
 use crate::open_api::objects::RollupStatus;
 use poem_openapi::Object;
 use std::collections::HashMap;
@@ -10,7 +11,7 @@ pub struct LastBatchIndexesResponse {
 }
 
 impl LastBatchIndexesResponse {
-    pub fn new(status_indexes: HashMap<i64, i64>) -> Self {
+    pub fn new(status_indexes: HashMap<RollupStatusType, i64>) -> Self {
         let mut committed_index = 0;
         let mut finalized_index = 0;
 

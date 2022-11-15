@@ -1,4 +1,5 @@
 use crate::db::models::BlockBatch;
+use crate::db::RollupStatusType;
 use poem_openapi::Object;
 use rust_decimal::Decimal;
 use std::fmt;
@@ -25,9 +26,9 @@ impl fmt::Display for RollupStatus {
     }
 }
 
-impl From<i64> for RollupStatus {
-    fn from(i: i64) -> Self {
-        match i {
+impl From<RollupStatusType> for RollupStatus {
+    fn from(t: RollupStatusType) -> Self {
+        match t {
             1 | 2 => Self::Precommitted,
             3 | 4 => Self::Committed,
             5 => Self::Finalized,
