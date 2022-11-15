@@ -1,4 +1,4 @@
-use crate::cache::Cache;
+use crate::cache::*;
 use crate::db::RollupStatusType;
 use crate::open_api::objects::RollupStatus;
 use poem_openapi::Object;
@@ -34,11 +34,6 @@ impl LastBatchIndexesResponse {
     }
 
     pub async fn from_cache(cache: &Cache, cache_key: &str) -> Option<Self> {
-        cache
-            .get(cache_key)
-            .await
-            .ok()
-            .flatten()
-            .and_then(|any| any.downcast_ref::<Self>().cloned())
+        from_cache(cache, cache_key).await
     }
 }

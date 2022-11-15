@@ -25,6 +25,29 @@ pub async fn fetch_all(db_pool: &DbPool, offset: u64, limit: u64) -> Result<Vec<
     query_as::<_, BlockBatch>(&stmt).fetch_all(db_pool).await
 }
 
+pub async fn fetch_one(db_pool: &DbPool, batch_id: &str) -> Result<Option<BlockBatch>> {
+    let stmt = format!(
+        "SELECT
+            id,
+            index,
+            start_block_number,
+            end_block_number,
+            total_tx_num,
+            rollup_status,
+            commit_tx_hash,
+            finalize_tx_hash,
+            created_at,
+            committed_at,
+            finalized_at
+        FROM {} where id = $1",
+        table_name::BLOCK_BATCH,
+    );
+    query_as::<_, BlockBatch>(&stmt)
+        .bind(batch_id)
+        .fetch_optional(db_pool)
+        .await
+}
+
 pub async fn get_total(db_pool: &DbPool) -> Result<i64> {
     let stmt = format!(
         "SELECT COALESCE(MAX(index), 0) FROM {}",

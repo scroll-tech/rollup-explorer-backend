@@ -22,6 +22,42 @@ pub(crate) struct Apis;
 
 #[OpenApi]
 impl Apis {
+    #[oai(path = "/batch", method = "get")]
+    async fn batch(
+        &self,
+        state: Data<&State>,
+        batch_id: Query<String>,
+    ) -> Result<Json<BatchResponse>> {
+        let batch_id = batch_id.0;
+
+        // Return directly if cached.
+        let cache_key = format!("batch-{batch_id}");
+        if let Some(response) = BatchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
+            log::debug!("OpenAPI - Get batch from Cache: {response:?}");
+            return Ok(Json(response));
+        };
+
+        let block_batch = block_batch_query::fetch_one(&state.db_pool, &batch_id)
+            .await
+            .map_err(|e| api_err!(e))?;
+        let response = BatchResponse::new(block_batch);
+
+        // Save to cache.
+        if let Err(error) = state
+            .cache
+            .set(
+                &cache_key,
+                Arc::new(response.clone()),
+                DEFAULT_CACHE_EXPIRED_SECS,
+            )
+            .await
+        {
+            log::error!("OpenAPI - Failed to save cache of {cache_key}: {error}");
+        }
+
+        Ok(Json(response))
+    }
+
     #[oai(path = "/batches", method = "get")]
     async fn batches(
         &self,
@@ -59,7 +95,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                BATCHES_CACHE_EXPIRED_SECS,
+                DEFAULT_CACHE_EXPIRED_SECS,
             )
             .await
         {
@@ -95,7 +131,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                BLOCKS_CACHE_EXPIRED_SECS,
+                DEFAULT_CACHE_EXPIRED_SECS,
             )
             .await
         {
@@ -129,7 +165,7 @@ impl Apis {
             .set(
                 "last_batch_indexes",
                 Arc::new(response.clone()),
-                LAST_BATCH_INDEXES_CACHE_EXPIRED_SECS,
+                DEFAULT_CACHE_EXPIRED_SECS,
             )
             .await
         {

@@ -1,4 +1,4 @@
-use crate::cache::Cache;
+use crate::cache::*;
 use crate::db::models::BlockResult;
 use crate::open_api::objects::Block;
 use poem_openapi::Object;
@@ -16,11 +16,6 @@ impl BlocksResponse {
     }
 
     pub async fn from_cache(cache: &Cache, cache_key: &str) -> Option<Self> {
-        cache
-            .get(cache_key)
-            .await
-            .ok()
-            .flatten()
-            .and_then(|any| any.downcast_ref::<Self>().cloned())
+        from_cache(cache, cache_key).await
     }
 }
