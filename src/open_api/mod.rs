@@ -24,7 +24,7 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let state = State { cache, db_pool };
 
     let open_api_addr = &settings.open_api_addr;
-    let svr = OpenApiService::new(apis::Apis, "Scroll Rollup Explorer", "1.0")
+    let svr = OpenApiService::new(apis::Apis, "Scroll Rollup Explorer", "2.0")
         .server(format!("{open_api_addr}/api"));
 
     let ui = svr.swagger_ui();
