@@ -94,7 +94,7 @@ impl Cache {
                         }
                     }
                     Err(error) => {
-                        log::error!("Cache - Failed to receive Request: {error}");
+                        log::warn!("Cache - Failed to receive Request (may exit): {error:?}");
                         break;
                     }
                 }
