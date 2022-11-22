@@ -33,6 +33,7 @@ INSERT INTO block_batch values (
     current_timestamp,
     current_timestamp,
     current_timestamp,
+    current_timestamp,
     current_timestamp
 ) ON CONFLICT DO NOTHING;
 
@@ -63,6 +64,7 @@ INSERT INTO block_batch values (
     5,
     '0x89e151dcbe42a96adb65c9858e853db31f49036dde754c117ed04842036d155d',
     '0x5e3212126060408466deacaef32a476478d4cfc7025b823e4d450cc3b60ad77b',
+    current_timestamp,
     current_timestamp,
     current_timestamp,
     current_timestamp,
