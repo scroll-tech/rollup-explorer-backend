@@ -1,5 +1,5 @@
 use crate::cache::*;
-use crate::db::models::BlockResult;
+use crate::db::models::BlockTrace;
 use crate::open_api::objects::Block;
 use poem_openapi::Object;
 
@@ -9,8 +9,8 @@ pub struct BlocksResponse {
 }
 
 impl BlocksResponse {
-    pub fn new(block_results: Vec<BlockResult>) -> Self {
-        let blocks = block_results.into_iter().map(Into::into).collect();
+    pub fn new(block_traces: Vec<BlockTrace>) -> Self {
+        let blocks = block_traces.into_iter().map(Into::into).collect();
 
         Self { blocks }
     }

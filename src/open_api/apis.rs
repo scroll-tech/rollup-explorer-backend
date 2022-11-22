@@ -120,10 +120,10 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let block_results = block_result_query::fetch_all(&state.db_pool, &batch_id)
+        let block_traces = block_trace_query::fetch_all(&state.db_pool, &batch_id)
             .await
             .map_err(|e| api_err!(e))?;
-        let response = BlocksResponse::new(block_results);
+        let response = BlocksResponse::new(block_traces);
 
         // Save to cache.
         if let Err(error) = state

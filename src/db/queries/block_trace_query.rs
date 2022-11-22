@@ -1,8 +1,8 @@
-use crate::db::models::BlockResult;
+use crate::db::models::BlockTrace;
 use crate::db::{table_name, DbPool};
 use sqlx::{query_as, Result};
 
-pub async fn fetch_all(db_pool: &DbPool, batch_id: &str) -> Result<Vec<BlockResult>> {
+pub async fn fetch_all(db_pool: &DbPool, batch_id: &str) -> Result<Vec<BlockTrace>> {
     let stmt = format!(
         "SELECT
             number,
@@ -11,9 +11,9 @@ pub async fn fetch_all(db_pool: &DbPool, batch_id: &str) -> Result<Vec<BlockResu
             batch_id,
             block_timestamp
         FROM {} WHERE batch_id = $1 ORDER BY number ASC",
-        table_name::BLOCK_RESULT,
+        table_name::BLOCK_TRACE,
     );
-    query_as::<_, BlockResult>(&stmt)
+    query_as::<_, BlockTrace>(&stmt)
         .bind(batch_id)
         .fetch_all(db_pool)
         .await

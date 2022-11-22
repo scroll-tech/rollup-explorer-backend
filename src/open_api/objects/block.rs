@@ -1,4 +1,4 @@
-use crate::db::models::BlockResult;
+use crate::db::models::BlockTrace;
 use poem_openapi::Object;
 use rust_decimal::Decimal;
 
@@ -10,13 +10,13 @@ pub struct Block {
     block_timestamp: Decimal,
 }
 
-impl From<BlockResult> for Block {
-    fn from(block_result: BlockResult) -> Self {
+impl From<BlockTrace> for Block {
+    fn from(block_trace: BlockTrace) -> Self {
         Self {
-            number: block_result.number,
-            tx_num: block_result.tx_num,
-            hash: block_result.hash,
-            block_timestamp: block_result.block_timestamp,
+            number: block_trace.number,
+            tx_num: block_trace.tx_num,
+            hash: block_trace.hash,
+            block_timestamp: block_trace.block_timestamp,
         }
     }
 }
