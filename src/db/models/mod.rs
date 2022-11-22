@@ -1,5 +1,5 @@
-pub mod block_result;
-pub mod rollup_result;
+pub mod block_batch;
+pub mod block_trace;
 
-pub use block_result::*;
-pub use rollup_result::*;
+pub use block_batch::*;
+pub use block_trace::*;

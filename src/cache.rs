@@ -13,6 +13,18 @@ type Ttl = u64;
 
 const CHANNEL_BOUND: usize = 200;
 
+pub async fn from_cache<T>(cache: &Cache, cache_key: &str) -> Option<T>
+where
+    T: Clone + 'static,
+{
+    cache
+        .get(cache_key)
+        .await
+        .ok()
+        .flatten()
+        .and_then(|any| any.downcast_ref::<T>().cloned())
+}
+
 pub fn run() -> Result<Cache> {
     let mut cache = Cache::new();
     cache.run();
@@ -82,7 +94,7 @@ impl Cache {
                         }
                     }
                     Err(error) => {
-                        log::error!("Cache - Failed to receive Request: {error}");
+                        log::warn!("Cache - Failed to receive Request (may exit): {error:?}");
                         break;
                     }
                 }

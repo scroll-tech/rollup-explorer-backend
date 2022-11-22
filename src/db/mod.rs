@@ -1,11 +1,13 @@
+mod queries;
+
 pub mod models;
-pub mod queries;
 
 pub use queries::*;
 
 pub type DbPool = sqlx::postgres::PgPool;
+pub type RollupStatusType = i32;
 
 pub mod table_name {
-    pub const BLOCK_RESULT: &str = "block_result";
-    pub const ROLLUP_RESULT: &str = "rollup_result";
+    pub const BLOCK_BATCH: &str = "block_batch";
+    pub const BLOCK_TRACE: &str = "block_trace";
 }

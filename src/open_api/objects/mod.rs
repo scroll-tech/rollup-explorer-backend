@@ -1,3 +1,5 @@
-mod l2_block;
+mod batch;
+mod block;
 
-pub use l2_block::*;
+pub use batch::*;
+pub use block::*;

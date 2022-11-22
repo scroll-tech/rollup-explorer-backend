@@ -1,3 +1,2 @@
-pub mod block_result_query;
-pub mod rollup_result_query;
-pub mod tps_query;
+pub mod block_batch_query;
+pub mod block_trace_query;

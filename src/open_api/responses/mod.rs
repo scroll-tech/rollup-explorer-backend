@@ -1,7 +1,9 @@
-mod l2_blocks_response;
-mod last_block_nums_response;
-mod tps_response;
+mod batch_response;
+mod batches_response;
+mod blocks_response;
+mod last_batch_indexes_response;
 
-pub use l2_blocks_response::*;
-pub use last_block_nums_response::*;
-pub use tps_response::*;
+pub use batch_response::*;
+pub use batches_response::*;
+pub use blocks_response::*;
+pub use last_batch_indexes_response::*;
