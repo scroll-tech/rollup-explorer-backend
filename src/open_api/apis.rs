@@ -23,23 +23,26 @@ pub(crate) struct Apis;
 #[OpenApi]
 impl Apis {
     #[oai(path = "/batch", method = "get")]
-    async fn batch(
-        &self,
-        state: Data<&State>,
-        batch_id: Query<String>,
-    ) -> Result<Json<BatchResponse>> {
-        let batch_id = batch_id.0;
+    async fn batch(&self, state: Data<&State>, index: Query<i64>) -> Result<Json<BatchResponse>> {
+        let index = index.0;
 
         // Return directly if cached.
-        let cache_key = format!("batch-{batch_id}");
+        let cache_key = format!("batch-{index}");
         if let Some(response) = BatchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get batch from Cache: {response:?}");
             return Ok(Json(response));
         };
 
-        let block_batch = block_batch_query::fetch_one(&state.db_pool, &batch_id)
+        let batch_id = block_batch_query::get_id_by_index(&state.db_pool, index)
             .await
             .map_err(|e| api_err!(e))?;
+        let block_batch = if let Some(id) = batch_id {
+            block_batch_query::fetch_one(&state.db_pool, &id)
+                .await
+                .map_err(|e| api_err!(e))?
+        } else {
+            None
+        };
         let response = BatchResponse::new(block_batch);
 
         // Save to cache.
@@ -109,21 +112,31 @@ impl Apis {
     async fn blocks(
         &self,
         state: Data<&State>,
-        batch_id: Query<String>,
+        batch_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
-        let batch_id = batch_id.0;
+        let batch_index = batch_index.0;
 
         // Return directly if cached.
-        let cache_key = format!("blocks-of-batch-{batch_id}");
+        let cache_key = format!("blocks-of-batch-{batch_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
             return Ok(Json(response));
         };
 
-        let block_traces = block_trace_query::fetch_all(&state.db_pool, &batch_id)
+        let batch_id = block_batch_query::get_id_by_index(&state.db_pool, batch_index)
             .await
             .map_err(|e| api_err!(e))?;
-        let response = BlocksResponse::new(block_traces);
+        let (batch_index, block_traces) = if let Some(id) = batch_id {
+            (
+                batch_index,
+                block_trace_query::fetch_all(&state.db_pool, &id)
+                    .await
+                    .map_err(|e| api_err!(e))?,
+            )
+        } else {
+            (INVALID_BATCH_INDEX, vec![])
+        };
+        let response = BlocksResponse::new(batch_index, block_traces);
 
         // Save to cache.
         if let Err(error) = state
@@ -170,6 +183,55 @@ impl Apis {
             .await
         {
             log::error!("OpenAPI - Failed to save cache for last batch indexes: {error}");
+        }
+
+        Ok(Json(response))
+    }
+
+    #[oai(path = "/search_blocks", method = "get")]
+    async fn search_blocks(
+        &self,
+        state: Data<&State>,
+        block_hash: Query<String>,
+    ) -> Result<Json<BlocksResponse>> {
+        let block_hash = block_hash.0;
+
+        // Return directly if cached.
+        let cache_key = format!("blocks-of-block-hash-{block_hash}");
+        if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
+            log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            return Ok(Json(response));
+        };
+
+        let batch_id = block_trace_query::get_batch_id_by_hash(&state.db_pool, &block_hash)
+            .await
+            .map_err(|e| api_err!(e))?;
+        let (batch_index, block_traces) = if let Some(id) = batch_id {
+            (
+                block_batch_query::get_index_by_id(&state.db_pool, &id)
+                    .await
+                    .map_err(|e| api_err!(e))?
+                    .unwrap_or(INVALID_BATCH_INDEX),
+                block_trace_query::fetch_all(&state.db_pool, &id)
+                    .await
+                    .map_err(|e| api_err!(e))?,
+            )
+        } else {
+            (INVALID_BATCH_INDEX, vec![])
+        };
+        let response = BlocksResponse::new(batch_index, block_traces);
+
+        // Save to cache.
+        if let Err(error) = state
+            .cache
+            .set(
+                &cache_key,
+                Arc::new(response.clone()),
+                DEFAULT_CACHE_EXPIRED_SECS,
+            )
+            .await
+        {
+            log::error!("OpenAPI - Failed to save cache of {cache_key}: {error}");
         }
 
         Ok(Json(response))
