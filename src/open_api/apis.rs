@@ -193,12 +193,14 @@ impl Apis {
         &self,
         state: Data<&State>,
         block_hash: Query<String>,
-    ) -> Result<Json<BlocksResponse>> {
+    ) -> Result<Json<SearchBlocksResponse>> {
         let block_hash = block_hash.0;
 
         // Return directly if cached.
         let cache_key = format!("blocks-of-block-hash-{block_hash}");
-        if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
+        if let Some(response) =
+            SearchBlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await
+        {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
             return Ok(Json(response));
         };
@@ -206,20 +208,15 @@ impl Apis {
         let batch_id = block_trace_query::get_batch_id_by_hash(&state.db_pool, &block_hash)
             .await
             .map_err(|e| api_err!(e))?;
-        let (batch_index, block_traces) = if let Some(id) = batch_id {
-            (
-                block_batch_query::get_index_by_id(&state.db_pool, &id)
-                    .await
-                    .map_err(|e| api_err!(e))?
-                    .unwrap_or(INVALID_BATCH_INDEX),
-                block_trace_query::fetch_all(&state.db_pool, &id)
-                    .await
-                    .map_err(|e| api_err!(e))?,
-            )
+        let batch_index = if let Some(id) = batch_id {
+            block_batch_query::get_index_by_id(&state.db_pool, &id)
+                .await
+                .map_err(|e| api_err!(e))?
+                .unwrap_or(INVALID_BATCH_INDEX)
         } else {
-            (INVALID_BATCH_INDEX, vec![])
+            INVALID_BATCH_INDEX
         };
-        let response = BlocksResponse::new(batch_index, block_traces);
+        let response = SearchBlocksResponse::new(batch_index);
 
         // Save to cache.
         if let Err(error) = state
