@@ -25,7 +25,7 @@ pub async fn fetch_all(db_pool: &DbPool, offset: u64, limit: u64) -> Result<Vec<
     query_as::<_, BlockBatch>(&stmt).fetch_all(db_pool).await
 }
 
-pub async fn fetch_one(db_pool: &DbPool, batch_id: &str) -> Result<Option<BlockBatch>> {
+pub async fn fetch_one(db_pool: &DbPool, index: i64) -> Result<Option<BlockBatch>> {
     let stmt = format!(
         "SELECT
             id,
@@ -39,11 +39,11 @@ pub async fn fetch_one(db_pool: &DbPool, batch_id: &str) -> Result<Option<BlockB
             created_at,
             committed_at,
             finalized_at
-        FROM {} where id = $1",
+        FROM {} where index = $1",
         table_name::BLOCK_BATCH,
     );
     query_as::<_, BlockBatch>(&stmt)
-        .bind(batch_id)
+        .bind(index)
         .fetch_optional(db_pool)
         .await
 }

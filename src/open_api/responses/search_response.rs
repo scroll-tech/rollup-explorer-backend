@@ -2,11 +2,11 @@ use crate::cache::*;
 use poem_openapi::Object;
 
 #[derive(Clone, Debug, Object)]
-pub struct SearchBlocksResponse {
+pub struct SearchResponse {
     batch_index: i64,
 }
 
-impl SearchBlocksResponse {
+impl SearchResponse {
     pub fn new(batch_index: i64) -> Self {
         Self { batch_index }
     }
