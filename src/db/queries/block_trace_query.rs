@@ -1,6 +1,6 @@
 use crate::db::models::BlockTrace;
 use crate::db::{table_name, DbPool};
-use sqlx::{query_as, Result};
+use sqlx::{query_as, query_scalar, Result};
 
 pub async fn fetch_all(db_pool: &DbPool, batch_id: &str) -> Result<Vec<BlockTrace>> {
     let stmt = format!(
@@ -16,5 +16,16 @@ pub async fn fetch_all(db_pool: &DbPool, batch_id: &str) -> Result<Vec<BlockTrac
     query_as::<_, BlockTrace>(&stmt)
         .bind(batch_id)
         .fetch_all(db_pool)
+        .await
+}
+
+pub async fn get_batch_id_by_hash(db_pool: &DbPool, hash: &str) -> Result<Option<String>> {
+    let stmt = format!(
+        "SELECT batch_id FROM {} where LOWER(hash) = LOWER($1)",
+        table_name::BLOCK_TRACE,
+    );
+    query_scalar::<_, String>(&stmt)
+        .bind(hash)
+        .fetch_optional(db_pool)
         .await
 }

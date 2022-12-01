@@ -25,7 +25,7 @@ pub async fn fetch_all(db_pool: &DbPool, offset: u64, limit: u64) -> Result<Vec<
     query_as::<_, BlockBatch>(&stmt).fetch_all(db_pool).await
 }
 
-pub async fn fetch_one(db_pool: &DbPool, batch_id: &str) -> Result<Option<BlockBatch>> {
+pub async fn fetch_one(db_pool: &DbPool, index: i64) -> Result<Option<BlockBatch>> {
     let stmt = format!(
         "SELECT
             id,
@@ -39,11 +39,33 @@ pub async fn fetch_one(db_pool: &DbPool, batch_id: &str) -> Result<Option<BlockB
             created_at,
             committed_at,
             finalized_at
-        FROM {} where id = $1",
+        FROM {} where index = $1",
         table_name::BLOCK_BATCH,
     );
     query_as::<_, BlockBatch>(&stmt)
-        .bind(batch_id)
+        .bind(index)
+        .fetch_optional(db_pool)
+        .await
+}
+
+pub async fn get_id_by_index(db_pool: &DbPool, index: i64) -> Result<Option<String>> {
+    let stmt = format!(
+        "SELECT id FROM {} where index = $1",
+        table_name::BLOCK_BATCH,
+    );
+    query_scalar::<_, String>(&stmt)
+        .bind(index)
+        .fetch_optional(db_pool)
+        .await
+}
+
+pub async fn get_index_by_id(db_pool: &DbPool, id: &str) -> Result<Option<i64>> {
+    let stmt = format!(
+        "SELECT index FROM {} where id = $1",
+        table_name::BLOCK_BATCH,
+    );
+    query_scalar::<_, i64>(&stmt)
+        .bind(id)
         .fetch_optional(db_pool)
         .await
 }
@@ -53,10 +75,7 @@ pub async fn get_total(db_pool: &DbPool) -> Result<i64> {
         "SELECT COALESCE(MAX(index), 0) FROM {}",
         table_name::BLOCK_BATCH,
     );
-    match query_scalar::<_, i64>(&stmt).fetch_one(db_pool).await {
-        Ok(max_num) => Ok(max_num),
-        Err(error) => Err(error),
-    }
+    query_scalar::<_, i64>(&stmt).fetch_one(db_pool).await
 }
 
 pub async fn get_max_status_indexes(db_pool: &DbPool) -> Result<HashMap<RollupStatusType, i64>> {
