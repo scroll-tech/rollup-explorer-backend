@@ -29,3 +29,14 @@ pub async fn get_batch_id_by_hash(db_pool: &DbPool, hash: &str) -> Result<Option
         .fetch_optional(db_pool)
         .await
 }
+
+pub async fn get_batch_id_by_number(db_pool: &DbPool, number: i64) -> Result<Option<String>> {
+    let stmt = format!(
+        "SELECT batch_id FROM {} where number = $1",
+        table_name::BLOCK_TRACE,
+    );
+    query_scalar::<_, String>(&stmt)
+        .bind(number)
+        .fetch_optional(db_pool)
+        .await
+}

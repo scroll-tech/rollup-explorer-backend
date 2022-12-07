@@ -181,24 +181,34 @@ impl Apis {
         Ok(Json(response))
     }
 
+    // Parameter `keyword` should be a block number or block hash in
+    // `block_trace` table.
     #[oai(path = "/search", method = "get")]
     async fn search(
         &self,
         state: Data<&State>,
-        block_hash: Query<String>,
+        keyword: Query<String>,
     ) -> Result<Json<SearchResponse>> {
-        let block_hash = block_hash.0;
+        let keyword = keyword.0;
 
         // Return directly if cached.
-        let cache_key = format!("search-block-hash-{block_hash}");
+        let cache_key = format!("search-{keyword}");
         if let Some(response) = SearchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
             return Ok(Json(response));
         };
 
-        let batch_id = block_trace_query::get_batch_id_by_hash(&state.db_pool, &block_hash)
-            .await
-            .map_err(|e| api_err!(e))?;
+        // Consider `keyword` as block number if it is an integer, otherwise
+        // consider as block hash (starts as `0x`).
+        let batch_id = match keyword.parse::<i64>() {
+            Ok(block_num) => block_trace_query::get_batch_id_by_number(&state.db_pool, block_num)
+                .await
+                .map_err(|e| api_err!(e))?,
+            Err(_) => block_trace_query::get_batch_id_by_hash(&state.db_pool, &keyword)
+                .await
+                .map_err(|e| api_err!(e))?,
+        };
+
         let batch_index = if let Some(id) = batch_id {
             block_batch_query::get_index_by_id(&state.db_pool, &id)
                 .await
