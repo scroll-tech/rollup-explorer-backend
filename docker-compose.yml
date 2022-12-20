@@ -29,6 +29,7 @@ services:
     links:
       - db
     environment:
+      BIND_PORT: 8600
       OPEN_API_ADDR: "localhost:8600"
     ports:
-      - "8600:5001"
+      - "8600:8600"

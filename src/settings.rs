@@ -4,10 +4,14 @@ use serde::Deserialize;
 use std::env;
 use std::sync::OnceLock;
 
+const DEFAULT_BIND_PORT: &str = "5001";
+
 static SETTINGS: OnceLock<Settings> = OnceLock::new();
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {
+    /// Internal HTTP bind port (5001 as default)
+    pub bind_port: String,
     /// As format of `postgres://USERNAME:PASSWORD@DB_HOST:DB_PORT/DATABASE`
     pub db_url: String,
     /// As format of `HTTP_HOST:HTTP_PORT`
@@ -18,8 +22,10 @@ pub struct Settings {
 
 impl Settings {
     pub fn init() -> Result<()> {
+        let bind_port = env::var("BIND_PORT").unwrap_or_else(|_| DEFAULT_BIND_PORT.into());
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
         let config = Config::builder()
+            .set_default("bind_port", bind_port)?
             .set_default("run_mode", run_mode.clone())?
             .add_source(File::with_name("config/default"))
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
