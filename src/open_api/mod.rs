@@ -37,9 +37,8 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
         .with(Cors::new().allow_origins_fn(|_| true))
         .data(state);
 
-    Server::new(TcpListener::bind("0.0.0.0:5001"))
-        .run(app)
-        .await?;
+    let bind_addr = format!("0.0.0.0:{}", settings.bind_port);
+    Server::new(TcpListener::bind(bind_addr)).run(app).await?;
 
     Ok(())
 }

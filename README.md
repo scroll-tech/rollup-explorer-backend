@@ -9,6 +9,12 @@
 Naturally, you will need the [Rust toolchain] installed.
 Besides that, [goose] is necessary for external database migrations in `database` dictionary of [scroll].
 
+## ENV
+
+- `BIND_PORT`: Internal binding HTTP port (`5001` as default).
+- `DB_URL`: The database URL used to connect.
+- `OPEN_API_ADDR`: Open API URL displayed on Web UI.
+
 ## Development
 
 - `make start`: Start a local `Postgres` docker-container, and `cargo run --bin rollup_explorer`. Then URL `http://0.0.0.0:5001` could be accessed in a Web browser.
