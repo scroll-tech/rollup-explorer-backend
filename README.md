@@ -14,6 +14,7 @@ Besides that, [goose] is necessary for external database migrations in `database
 - `BIND_PORT`: Internal binding HTTP port (`5001` as default).
 - `DB_URL`: The database URL used to connect.
 - `OPEN_API_ADDR`: Open API URL displayed on Web UI.
+- `MAX_PER_PAGE`: Max value of query parameter `per_page` (100 as default)
 
 ## Development
 

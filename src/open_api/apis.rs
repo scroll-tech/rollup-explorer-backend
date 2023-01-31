@@ -65,8 +65,8 @@ impl Apis {
             || DEFAULT_PER_PAGE,
             |val| {
                 if val > 0 {
-                    if val > MAX_PER_PAGE {
-                        MAX_PER_PAGE
+                    if val > state.max_per_page {
+                        state.max_per_page
                     } else {
                         val
                     }
