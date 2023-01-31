@@ -63,7 +63,9 @@ impl Apis {
     ) -> Result<Json<BatchesResponse>> {
         let limit = per_page.0.map_or_else(
             || DEFAULT_PER_PAGE,
-            |val| if val > 0 { val } else { DEFAULT_PER_PAGE },
+            |val| if val > 0 { 
+                if val > MAX_PER_PAGE { MAX_PER_PAGE } else { val }
+            } else { DEFAULT_PER_PAGE },
         );
         let offset = page
             .0
