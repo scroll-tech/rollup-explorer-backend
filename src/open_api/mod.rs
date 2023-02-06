@@ -16,12 +16,18 @@ mod responses;
 struct State {
     cache: Arc<Cache>,
     db_pool: DbPool,
+    max_per_page: u64,
 }
 
 pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let settings = Settings::get();
     let db_pool = DbPool::connect(settings.db_url.as_str()).await?;
-    let state = State { cache, db_pool };
+    let max_per_page = settings.max_per_page;
+    let state = State {
+        cache,
+        db_pool,
+        max_per_page,
+    };
 
     let open_api_addr = &settings.open_api_addr;
     let svr = OpenApiService::new(apis::Apis, "Scroll Rollup Explorer", "2.0")

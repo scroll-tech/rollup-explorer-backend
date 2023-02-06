@@ -18,6 +18,8 @@ pub struct Settings {
     pub open_api_addr: String,
     /// `development` or `production`
     run_mode: String,
+    ///  Max value of query parameter `per_page` (100 as default)
+    pub max_per_page: u64,
 }
 
 impl Settings {
@@ -27,6 +29,7 @@ impl Settings {
         let config = Config::builder()
             .set_default("bind_port", bind_port)?
             .set_default("run_mode", run_mode.clone())?
+            .set_default("max_per_page", 100)?
             .add_source(File::with_name("config/default"))
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
             .add_source(Environment::default())
