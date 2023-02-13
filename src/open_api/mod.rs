@@ -36,7 +36,7 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let ui = svr.swagger_ui();
     let spec = svr.spec();
     let app = Route::new()
-        .nest("/", ui)
+        .nest(&settings.api_base_path, ui)
         .nest("/api", svr)
         .at("/spec", poem::endpoint::make_sync(move |_| spec.clone()))
         // TODO: Fix to only allow specified origins.

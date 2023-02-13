@@ -14,6 +14,8 @@ pub struct Settings {
     pub bind_port: String,
     /// As format of `postgres://USERNAME:PASSWORD@DB_HOST:DB_PORT/DATABASE`
     pub db_url: String,
+    /// Base path for the server to serve requests on ('/' as default)
+    pub api_base_path: String,
     /// As format of `HTTP_HOST:HTTP_PORT`
     pub open_api_addr: String,
     /// `development` or `production`
@@ -28,6 +30,7 @@ impl Settings {
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
         let config = Config::builder()
             .set_default("bind_port", bind_port)?
+            .set_default("api_base_path", "/")?
             .set_default("run_mode", run_mode.clone())?
             .set_default("max_per_page", 100)?
             .add_source(File::with_name("config/default"))
