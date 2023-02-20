@@ -4,7 +4,7 @@ use serde::Serialize;
 
 #[derive(sqlx::FromRow, Clone, Debug, Serialize)]
 pub struct BlockBatch {
-    pub id: String,
+    pub hash: String,
     pub index: i64,
     pub start_block_number: i64,
     pub end_block_number: i64,

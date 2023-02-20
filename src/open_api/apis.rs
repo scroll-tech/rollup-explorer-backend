@@ -126,13 +126,13 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let batch_id = block_batch_query::get_id_by_index(&state.db_pool, batch_index)
+        let batch_hash = block_batch_query::get_hash_by_index(&state.db_pool, batch_index)
             .await
             .map_err(|e| api_err!(e))?;
-        let (batch_index, block_traces) = if let Some(id) = batch_id {
+        let (batch_index, block_traces) = if let Some(hash) = batch_hash {
             (
                 batch_index,
-                block_trace_query::fetch_all(&state.db_pool, &id)
+                block_trace_query::fetch_all(&state.db_pool, &hash)
                     .await
                     .map_err(|e| api_err!(e))?,
             )
@@ -210,17 +210,17 @@ impl Apis {
 
         // Consider `keyword` as block number if it is an integer, otherwise
         // consider as block hash (starts as `0x`).
-        let batch_id = match keyword.parse::<i64>() {
-            Ok(block_num) => block_trace_query::get_batch_id_by_number(&state.db_pool, block_num)
+        let batch_hash = match keyword.parse::<i64>() {
+            Ok(block_num) => block_trace_query::get_batch_hash_by_number(&state.db_pool, block_num)
                 .await
                 .map_err(|e| api_err!(e))?,
-            Err(_) => block_trace_query::get_batch_id_by_hash(&state.db_pool, &keyword)
+            Err(_) => block_trace_query::get_batch_hash_by_trace_hash(&state.db_pool, &keyword)
                 .await
                 .map_err(|e| api_err!(e))?,
         };
 
-        let batch_index = if let Some(id) = batch_id {
-            block_batch_query::get_index_by_id(&state.db_pool, &id)
+        let batch_index = if let Some(hash) = batch_hash {
+            block_batch_query::get_index_by_hash(&state.db_pool, &hash)
                 .await
                 .map_err(|e| api_err!(e))?
                 .unwrap_or(INVALID_BATCH_INDEX)

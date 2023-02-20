@@ -11,7 +11,10 @@ INSERT INTO block_batch values (
     10,
     '0x52dd8c4568daa7df8a5fbffe7cba4def97409ab2bfec47a4b66c140d1fb61162',
     '0x1911710df1000a7bee02fb340ae906804c7f778bd145fea1710b76c1a3103965',
+    '',
     2,
+    0,
+    0,
     0
 ) ON CONFLICT DO NOTHING;
 
@@ -23,7 +26,9 @@ INSERT INTO block_batch values (
     8,
     '0xf60e145b7eecab24830224dda3770e7f284b6f4f8d750f4a1595402906af699f',
     '0xa9dd95aee224402d4abaeac142337450afe897299927b9336d5785e8c6133587',
+    '',
     10,
+    0,
     10,
     10,
     null,
@@ -32,6 +37,8 @@ INSERT INTO block_batch values (
     10,
     '0x7077c274526c182ebb304f7e904d7547e7557083283d22334e2b827732adc227',
     '0xaa096608f4144b225fe1c0fe8867f0a6e52e428454648674dcb16c5ac8c0a72a',
+    1,
+    null,
     current_timestamp,
     current_timestamp,
     current_timestamp,
@@ -47,7 +54,9 @@ INSERT INTO block_batch values (
     4,
     '0xb2c4670936ebfb12fcf7c390bcf1040a381f4f992b13d7d32879d756d54a8627',
     '0x98d7c2dee6fa1cf200262a22882df35ae55e3cf78ecd554fce1d12ea12c1552c',
+    '',
     1,
+    0,
     0
 ) ON CONFLICT DO NOTHING;
 
@@ -59,7 +68,9 @@ INSERT INTO block_batch values (
     3,
     '0x41978bf9a6e2e799924760ddcb6118aa16751022f4415679d22eeadc71e81b8e',
     '0xd3e7eaa0b0c5b44075d8a8795430350591439562e94351317c671a608267e82b',
+    '',
     20,
+    0,
     20,
     1,
     null,
@@ -68,6 +79,8 @@ INSERT INTO block_batch values (
     5,
     '0x89e151dcbe42a96adb65c9858e853db31f49036dde754c117ed04842036d155d',
     '0x5e3212126060408466deacaef32a476478d4cfc7025b823e4d450cc3b60ad77b',
+    1,
+    null,
     current_timestamp,
     current_timestamp,
     current_timestamp,
@@ -83,7 +96,9 @@ INSERT INTO block_batch values (
     2,
     '0xd90bce2038b722089c11bb734e132d304ed51a903d941d0d4342e5c9b61e2a50',
     '0xa4ee974098af0f19d271f4dbd30b56e61541d000e0bcbb3678398c100c03971f',
+    '',
     2,
+    0,
     0
 ) ON CONFLICT DO NOTHING;
 
