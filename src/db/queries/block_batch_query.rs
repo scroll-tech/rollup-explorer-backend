@@ -6,7 +6,7 @@ use std::collections::HashMap;
 pub async fn fetch_all(db_pool: &DbPool, offset: u64, limit: u64) -> Result<Vec<BlockBatch>> {
     let stmt = format!(
         "SELECT
-            id,
+            hash,
             index,
             start_block_number,
             end_block_number,
@@ -28,7 +28,7 @@ pub async fn fetch_all(db_pool: &DbPool, offset: u64, limit: u64) -> Result<Vec<
 pub async fn fetch_one(db_pool: &DbPool, index: i64) -> Result<Option<BlockBatch>> {
     let stmt = format!(
         "SELECT
-            id,
+            hash,
             index,
             start_block_number,
             end_block_number,
@@ -48,9 +48,9 @@ pub async fn fetch_one(db_pool: &DbPool, index: i64) -> Result<Option<BlockBatch
         .await
 }
 
-pub async fn get_id_by_index(db_pool: &DbPool, index: i64) -> Result<Option<String>> {
+pub async fn get_hash_by_index(db_pool: &DbPool, index: i64) -> Result<Option<String>> {
     let stmt = format!(
-        "SELECT id FROM {} where index = $1",
+        "SELECT hash FROM {} where index = $1",
         table_name::BLOCK_BATCH,
     );
     query_scalar::<_, String>(&stmt)
@@ -59,13 +59,13 @@ pub async fn get_id_by_index(db_pool: &DbPool, index: i64) -> Result<Option<Stri
         .await
 }
 
-pub async fn get_index_by_id(db_pool: &DbPool, id: &str) -> Result<Option<i64>> {
+pub async fn get_index_by_hash(db_pool: &DbPool, hash: &str) -> Result<Option<i64>> {
     let stmt = format!(
-        "SELECT index FROM {} where id = $1",
+        "SELECT index FROM {} where hash = $1",
         table_name::BLOCK_BATCH,
     );
     query_scalar::<_, i64>(&stmt)
-        .bind(id)
+        .bind(hash)
         .fetch_optional(db_pool)
         .await
 }

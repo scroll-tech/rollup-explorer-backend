@@ -56,7 +56,7 @@ pub struct Batch {
 impl From<BlockBatch> for Batch {
     fn from(block_batch: BlockBatch) -> Self {
         Self {
-            id: block_batch.id,
+            id: block_batch.hash,
             index: block_batch.index,
             start_block_number: block_batch.start_block_number,
             end_block_number: block_batch.end_block_number,
