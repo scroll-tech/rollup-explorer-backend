@@ -10,7 +10,7 @@ This repo contains the backend code for the [Rollup Explorer](https://scroll.io/
 
 ## Contributing
 
-If you encounter bugs or have feature ideas, feel free to [create an issue](/issues') or [write a PR](/pulls).
+If you encounter bugs or have feature ideas, feel free to [create an issue](/../../issues) or [write a PR](/../../pulls).
 
 ## Prerequisites
 
