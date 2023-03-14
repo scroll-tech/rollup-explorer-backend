@@ -1,10 +1,18 @@
-# Rollup Explorer Backend
+# Scroll's Rollup Explorer Backend
 
 [![Main Test Status][test-image]][test-link]
 [![Audit Status][audit-image]][audit-link]
 ![Rust Nightly][rustc-image]
 
-## Pre-requisites
+## Purpose
+
+This repo contains the backend code for the [Rollup Explorer](https://scroll.io/alpha/rollupscan) that's currently being maintained by Scroll.
+
+## Contributing
+
+If you encounter bugs or have feature ideas, feel free to [create an issue](/issues') or [write a PR](/pulls).
+
+## Prerequisites
 
 Naturally, you will need the [Rust toolchain] installed.
 Besides that, [goose] is necessary for external database migrations in `database` dictionary of [scroll].
@@ -26,6 +34,16 @@ Besides that, [goose] is necessary for external database migrations in `database
 
 - `make shfmt`: Format Shell scripts.
 
+## Adding Mock Data
+
+Run the following:
+
+`psql postgres://postgres:scroll2022@localhost:5434/scroll -f db/tests/test.sql`
+
+## Deployment
+
+Currently deployed by Scroll's devops and used by https://scroll.io/alpha/rollupscan.
+
 [//]: # "badges"
 [Rust toolchain]: https://rustup.rs
 [audit-image]: https://github.com/scroll-tech/rollup-explorer-backend/actions/workflows/audit.yml/badge.svg
@@ -35,9 +53,3 @@ Besides that, [goose] is necessary for external database migrations in `database
 [scroll]: https://github.com/scroll-tech/scroll
 [test-image]: https://github.com/scroll-tech/rollup-explorer-backend/actions/workflows/test.yml/badge.svg
 [test-link]: https://github.com/scroll-tech/rollup-explorer-backend/actions/workflows/test.yml
-
-## Adding Mock Data
-
-Run the following:
-
-`psql postgres://postgres:scroll2022@localhost:5434/scroll -f db/tests/test.sql`
