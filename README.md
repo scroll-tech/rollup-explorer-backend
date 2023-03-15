@@ -8,6 +8,10 @@
 
 This repo contains the backend code for the [Rollup Explorer](https://scroll.io/alpha/rollupscan) that's currently being maintained by Scroll.
 
+## License
+
+MIT.
+
 ## Contributing
 
 If you encounter bugs or have feature ideas, feel free to [create an issue](/../../issues) or [write a PR](/../../pulls).
