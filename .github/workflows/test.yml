@@ -3,10 +3,12 @@ name: Unit Test
 on:
   push:
     branches:
+      - develop
       - main
       - staging
   pull_request:
     branches:
+      - develop
       - main
       - staging
 
