@@ -3,14 +3,14 @@ name: Security Audit
 on:
   push:
     branches:
-      - main
-      - staging
+      - alpha
+      - develop
     paths:
       - Cargo.lock
   pull_request:
     branches:
-      - main
-      - staging
+      - alpha
+      - develop
     paths:
       - Cargo.lock
 

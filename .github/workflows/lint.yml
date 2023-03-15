@@ -3,12 +3,12 @@ name: Lint
 on:
   push:
     branches:
-      - main
-      - staging
+      - alpha
+      - develop
   pull_request:
     branches:
-      - main
-      - staging
+      - alpha
+      - develop
 
 jobs:
   fmt:
