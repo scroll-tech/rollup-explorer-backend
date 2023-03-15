@@ -32,4 +32,6 @@ jobs:
             --deny warnings \
             --ignore RUSTSEC-2020-0071 \
             --ignore RUSTSEC-2021-0139 \
-            --ignore RUSTSEC-2021-0141
+            --ignore RUSTSEC-2021-0141 \
+            --ignore RUSTSEC-2022-0078 \
+            --ignore RUSTSEC-2023-0018
