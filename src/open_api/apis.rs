@@ -1,13 +1,10 @@
-use crate::consts::*;
-use crate::db::*;
-use crate::open_api::responses::*;
-use crate::open_api::State;
-use poem::error::InternalServerError;
-use poem::web::Data;
-use poem::Result;
-use poem_openapi::param::Query;
-use poem_openapi::payload::Json;
-use poem_openapi::OpenApi;
+use crate::{
+    consts::*,
+    db::*,
+    open_api::{responses::*, State},
+};
+use poem::{error::InternalServerError, web::Data, Result};
+use poem_openapi::{param::Query, payload::Json, OpenApi};
 use std::sync::Arc;
 
 // Macro used to log error with right line number.
@@ -33,10 +30,10 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let block_batch = block_batch_query::fetch_one(&state.db_pool, index)
+        let batch = batch_query::fetch_one(&state.db_pool, index)
             .await
             .map_err(|e| api_err!(e))?;
-        let response = BatchResponse::new(block_batch);
+        let response = BatchResponse::new(batch);
 
         // Save to cache.
         if let Err(error) = state
@@ -87,13 +84,13 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let total = block_batch_query::get_total(&state.db_pool)
+        let total = batch_query::get_total(&state.db_pool)
             .await
             .map_err(|e| api_err!(e))?;
-        let block_batches = block_batch_query::fetch_all(&state.db_pool, offset, limit)
+        let batches = batch_query::fetch_all(&state.db_pool, offset, limit)
             .await
             .map_err(|e| api_err!(e))?;
-        let response = BatchesResponse::new(total, block_batches);
+        let response = BatchesResponse::new(total, batches);
 
         // Save to cache.
         if let Err(error) = state
@@ -115,31 +112,77 @@ impl Apis {
     async fn blocks(
         &self,
         state: Data<&State>,
-        batch_index: Query<i64>,
+        chunk_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
-        let batch_index = batch_index.0;
+        let chunk_index = chunk_index.0;
 
         // Return directly if cached.
-        let cache_key = format!("blocks-of-batch-{batch_index}");
+        let cache_key = format!("blocks-of-chunk-{chunk_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
             return Ok(Json(response));
         };
 
-        let batch_hash = block_batch_query::get_hash_by_index(&state.db_pool, batch_index)
+        let chunk_hash = chunk_query::get_hash_by_index(&state.db_pool, chunk_index)
             .await
             .map_err(|e| api_err!(e))?;
-        let (batch_index, block_traces) = if let Some(hash) = batch_hash {
+        let (chunk_index, l2_blocks) = if let Some(hash) = chunk_hash {
             (
-                batch_index,
-                block_trace_query::fetch_all(&state.db_pool, &hash)
+                chunk_index,
+                l2_block_query::fetch_all(&state.db_pool, &hash)
                     .await
                     .map_err(|e| api_err!(e))?,
             )
         } else {
-            (INVALID_BATCH_INDEX, vec![])
+            (INVALID_IDNEX, vec![])
         };
-        let response = BlocksResponse::new(batch_index, block_traces);
+        let response = BlocksResponse::new(chunk_index, l2_blocks);
+
+        // Save to cache.
+        if let Err(error) = state
+            .cache
+            .set(
+                &cache_key,
+                Arc::new(response.clone()),
+                DEFAULT_CACHE_EXPIRED_SECS,
+            )
+            .await
+        {
+            log::error!("OpenAPI - Failed to save cache of {cache_key}: {error}");
+        }
+
+        Ok(Json(response))
+    }
+
+    #[oai(path = "/chunks", method = "get")]
+    async fn chunks(
+        &self,
+        state: Data<&State>,
+        batch_index: Query<i64>,
+    ) -> Result<Json<ChunksResponse>> {
+        let batch_index = batch_index.0;
+
+        // Return directly if cached.
+        let cache_key = format!("chunks-of-batch-{batch_index}");
+        if let Some(response) = ChunksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
+            log::debug!("OpenAPI - Get chunks from Cache: {response:?}");
+            return Ok(Json(response));
+        };
+
+        let batch_hash = batch_query::get_hash_by_index(&state.db_pool, batch_index)
+            .await
+            .map_err(|e| api_err!(e))?;
+        let (batch_index, chunks) = if let Some(hash) = batch_hash {
+            (
+                batch_index,
+                chunk_query::fetch_all(&state.db_pool, &hash)
+                    .await
+                    .map_err(|e| api_err!(e))?,
+            )
+        } else {
+            (INVALID_IDNEX, vec![])
+        };
+        let response = ChunksResponse::new(batch_index, chunks);
 
         // Save to cache.
         if let Err(error) = state
@@ -170,7 +213,7 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let status_indexes = block_batch_query::get_max_status_indexes(&state.db_pool)
+        let status_indexes = batch_query::get_max_status_indexes(&state.db_pool)
             .await
             .map_err(|e| api_err!(e))?;
         let response = LastBatchIndexesResponse::new(status_indexes);
@@ -191,8 +234,8 @@ impl Apis {
         Ok(Json(response))
     }
 
-    // Parameter `keyword` should be a block number or block hash in
-    // `block_trace` table.
+    // Parameter `keyword` should be a block number or block hash in `l2block`
+    // table.
     #[oai(path = "/search", method = "get")]
     async fn search(
         &self,
@@ -211,21 +254,21 @@ impl Apis {
         // Consider `keyword` as block number if it is an integer, otherwise
         // consider as block hash (starts as `0x`).
         let batch_hash = match keyword.parse::<i64>() {
-            Ok(block_num) => block_trace_query::get_batch_hash_by_number(&state.db_pool, block_num)
+            Ok(block_num) => l2_block_query::get_batch_hash_by_number(&state.db_pool, block_num)
                 .await
                 .map_err(|e| api_err!(e))?,
-            Err(_) => block_trace_query::get_batch_hash_by_trace_hash(&state.db_pool, &keyword)
+            Err(_) => l2_block_query::get_batch_hash_by_block_hash(&state.db_pool, &keyword)
                 .await
                 .map_err(|e| api_err!(e))?,
         };
 
         let batch_index = if let Some(hash) = batch_hash {
-            block_batch_query::get_index_by_hash(&state.db_pool, &hash)
+            batch_query::get_index_by_hash(&state.db_pool, &hash)
                 .await
                 .map_err(|e| api_err!(e))?
-                .unwrap_or(INVALID_BATCH_INDEX)
+                .unwrap_or(INVALID_IDNEX)
         } else {
-            INVALID_BATCH_INDEX
+            INVALID_IDNEX
         };
         let response = SearchResponse::new(batch_index);
 

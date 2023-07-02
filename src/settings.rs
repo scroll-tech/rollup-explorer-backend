@@ -1,8 +1,7 @@
 use anyhow::{anyhow, Result};
 use config::{Config, Environment, File};
 use serde::Deserialize;
-use std::env;
-use std::sync::OnceLock;
+use std::{env, sync::OnceLock};
 
 const DEFAULT_BIND_PORT: &str = "5001";
 

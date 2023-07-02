@@ -1,5 +1,4 @@
-use crate::db::models::BlockTrace;
-use crate::db::{table_name, DbPool};
+use crate::db::{models::BlockTrace, table_name, DbPool};
 use sqlx::{query_as, query_scalar, Result};
 
 pub async fn fetch_all(db_pool: &DbPool, batch_hash: &str) -> Result<Vec<BlockTrace>> {

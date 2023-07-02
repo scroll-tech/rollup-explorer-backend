@@ -1,5 +1,4 @@
-use crate::db::models::BlockBatch;
-use crate::db::{table_name, DbPool, RollupStatusType};
+use crate::db::{models::BlockBatch, table_name, DbPool, RollupStatusType};
 use sqlx::{query_as, query_scalar, Result};
 use std::collections::HashMap;
 
