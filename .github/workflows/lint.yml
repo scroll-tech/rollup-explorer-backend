@@ -6,12 +6,16 @@ on:
       - alpha
       - develop
   pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
     branches:
       - alpha
       - develop
 
 jobs:
   fmt:
+    if: |
+      github.event.pull_request.draft == false ||
+      github.event.action == 'ready_for_review'
     name: fmt
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +32,9 @@ jobs:
           cargo fmt --all -- --check
 
   clippy:
+    if: |
+      github.event.pull_request.draft == false ||
+      github.event.action == 'ready_for_review'
     name: clippy
     runs-on: ubuntu-latest
     steps:
