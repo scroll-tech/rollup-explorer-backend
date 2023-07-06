@@ -3,15 +3,26 @@ use poem_openapi::Object;
 
 #[derive(Clone, Debug, Object)]
 pub struct BlocksResponse {
-    chunk_index: i64,
+    batch_index: Option<i64>,
+    chunk_index: Option<i64>,
     blocks: Vec<Block>,
 }
 
 impl BlocksResponse {
-    pub fn new(chunk_index: i64, l2_blocks: Vec<models::L2Block>) -> Self {
-        let blocks = l2_blocks.into_iter().map(Into::into).collect();
+    pub fn from_batch_blocks(batch_index: i64, blocks: Vec<models::Block>) -> Self {
+        let blocks = blocks.into_iter().map(Into::into).collect();
 
         Self {
+            batch_index,
+            chunk_index: None,
+            blocks,
+        }
+    }
+    pub fn from_chunk_blocks(chunk_index: i64, blocks: Vec<models::Block>) -> Self {
+        let blocks = blocks.into_iter().map(Into::into).collect();
+
+        Self {
+            batch_index: None,
             chunk_index,
             blocks,
         }

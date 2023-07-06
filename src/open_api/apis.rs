@@ -108,35 +108,22 @@ impl Apis {
         Ok(Json(response))
     }
 
-    #[oai(path = "/blocks", method = "get")]
-    async fn blocks(
+    #[oai(path = "/batch_blocks", method = "get")]
+    async fn batch_blocks(
         &self,
         state: Data<&State>,
-        chunk_index: Query<i64>,
+        batch_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
-        let chunk_index = chunk_index.0;
+        let batch_index = batch_index.0;
 
         // Return directly if cached.
-        let cache_key = format!("blocks-of-chunk-{chunk_index}");
+        let cache_key = format!("blocks-of-batch-{batch_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
             return Ok(Json(response));
         };
 
-        let chunk_hash = chunk_query::get_hash_by_index(&state.db_pool, chunk_index)
-            .await
-            .map_err(|e| api_err!(e))?;
-        let (chunk_index, l2_blocks) = if let Some(hash) = chunk_hash {
-            (
-                chunk_index,
-                l2_block_query::fetch_all(&state.db_pool, &hash)
-                    .await
-                    .map_err(|e| api_err!(e))?,
-            )
-        } else {
-            (INVALID_IDNEX, vec![])
-        };
-        let response = BlocksResponse::new(chunk_index, l2_blocks);
+        let response = query_blocks_by_batch_index(batch_index)?;
 
         // Save to cache.
         if let Err(error) = state
@@ -183,6 +170,39 @@ impl Apis {
             (INVALID_IDNEX, vec![])
         };
         let response = ChunksResponse::new(batch_index, chunks);
+
+        // Save to cache.
+        if let Err(error) = state
+            .cache
+            .set(
+                &cache_key,
+                Arc::new(response.clone()),
+                DEFAULT_CACHE_EXPIRED_SECS,
+            )
+            .await
+        {
+            log::error!("OpenAPI - Failed to save cache of {cache_key}: {error}");
+        }
+
+        Ok(Json(response))
+    }
+
+    #[oai(path = "/chunk_blocks", method = "get")]
+    async fn chunk_blocks(
+        &self,
+        state: Data<&State>,
+        chunk_index: Query<i64>,
+    ) -> Result<Json<BlocksResponse>> {
+        let chunk_index = chunk_index.0;
+
+        // Return directly if cached.
+        let cache_key = format!("blocks-of-chunk-{chunk_index}");
+        if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
+            log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            return Ok(Json(response));
+        };
+
+        let response = query_blocks_by_chunk_index(chunk_index)?;
 
         // Save to cache.
         if let Err(error) = state
@@ -287,4 +307,46 @@ impl Apis {
 
         Ok(Json(response))
     }
+}
+
+fn query_blocks_by_batch_index(batch_index: i64) -> Result<BlocksResponse> {
+    let batch_hash = batch_query::get_hash_by_index(&state.db_pool, batch_index)
+        .await
+        .map_err(|e| api_err!(e))?;
+    if batch_hash.is_none() {
+        return Ok(BlocksResponse::from_batch_blocks(INVALID_IDNEX, vec![]));
+    }
+    let batch_hash = batch_hash.unwrap();
+
+    let block_num_range =
+        chunk_query::get_block_num_range_by_batch_hash(&state.db_pool, batch_hash)
+            .await
+            .map_err(|e| api_err!(e))?;
+    if block_num_range.is_none() {
+        return Ok(BlocksResponse::from_batch_blocks(INVALID_IDNEX, vec![]));
+    }
+    let (start_block_num, end_block_num) = block_num_range.unwrap();
+
+    let blocks =
+        block_query::get_blocks_by_num_range(&state.db_pool, start_block_num, end_block_num)
+            .await
+            .map_err(|e| api_err!(e))?;
+
+    Ok(BlocksResponse::from_batch_blocks(batch_index, blocks))
+}
+
+fn query_blocks_by_chunk_index(chunk_index: i64) -> Result<BlocksResponse> {
+    let chunk_hash = chunk_query::get_hash_by_index(&state.db_pool, chunk_index)
+        .await
+        .map_err(|e| api_err!(e))?;
+    if chunk_hash.is_none() {
+        return Ok(BlocksResponse::from_chunk_blocks(INVALID_IDNEX, vec![]));
+    }
+    let chunk_hash = chunk_hash.unwrap();
+
+    let blocks = block_query::fetch_all(&state.db_pool, &chunk_hash)
+        .await
+        .map_err(|e| api_err!(e))?;
+
+    Ok(BlocksResponse::from_chunk_blocks(chunk_index, blocks))
 }
