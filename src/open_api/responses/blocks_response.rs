@@ -13,7 +13,7 @@ impl BlocksResponse {
         let blocks = blocks.into_iter().map(Into::into).collect();
 
         Self {
-            batch_index,
+            batch_index: Some(batch_index),
             chunk_index: None,
             blocks,
         }
@@ -23,7 +23,7 @@ impl BlocksResponse {
 
         Self {
             batch_index: None,
-            chunk_index,
+            chunk_index: Some(chunk_index),
             blocks,
         }
     }

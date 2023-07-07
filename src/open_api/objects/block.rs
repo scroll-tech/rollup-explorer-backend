@@ -10,8 +10,8 @@ pub struct Block {
     block_timestamp: Decimal,
 }
 
-impl From<models::L2Block> for Block {
-    fn from(l2_block: models::L2Block) -> Self {
+impl From<models::Block> for Block {
+    fn from(l2_block: models::Block) -> Self {
         Self {
             number: l2_block.number,
             tx_num: l2_block.tx_num,

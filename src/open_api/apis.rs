@@ -123,7 +123,7 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let response = query_blocks_by_batch_index(batch_index)?;
+        let response = query_blocks_by_batch_index(&state.db_pool, batch_index).await?;
 
         // Save to cache.
         if let Err(error) = state
@@ -167,7 +167,7 @@ impl Apis {
                     .map_err(|e| api_err!(e))?,
             )
         } else {
-            (INVALID_IDNEX, vec![])
+            (INVALID_INDEX, vec![])
         };
         let response = ChunksResponse::new(batch_index, chunks);
 
@@ -202,7 +202,7 @@ impl Apis {
             return Ok(Json(response));
         };
 
-        let response = query_blocks_by_chunk_index(chunk_index)?;
+        let response = query_blocks_by_chunk_index(&state.db_pool, chunk_index).await?;
 
         // Save to cache.
         if let Err(error) = state
@@ -274,10 +274,10 @@ impl Apis {
         // Consider `keyword` as block number if it is an integer, otherwise
         // consider as block hash (starts as `0x`).
         let batch_hash = match keyword.parse::<i64>() {
-            Ok(block_num) => l2_block_query::get_batch_hash_by_number(&state.db_pool, block_num)
+            Ok(block_num) => block_query::get_batch_hash_by_number(&state.db_pool, block_num)
                 .await
                 .map_err(|e| api_err!(e))?,
-            Err(_) => l2_block_query::get_batch_hash_by_block_hash(&state.db_pool, &keyword)
+            Err(_) => block_query::get_batch_hash_by_block_hash(&state.db_pool, &keyword)
                 .await
                 .map_err(|e| api_err!(e))?,
         };
@@ -286,9 +286,9 @@ impl Apis {
             batch_query::get_index_by_hash(&state.db_pool, &hash)
                 .await
                 .map_err(|e| api_err!(e))?
-                .unwrap_or(INVALID_IDNEX)
+                .unwrap_or(INVALID_INDEX)
         } else {
-            INVALID_IDNEX
+            INVALID_INDEX
         };
         let response = SearchResponse::new(batch_index);
 
@@ -309,42 +309,40 @@ impl Apis {
     }
 }
 
-fn query_blocks_by_batch_index(batch_index: i64) -> Result<BlocksResponse> {
-    let batch_hash = batch_query::get_hash_by_index(&state.db_pool, batch_index)
+async fn query_blocks_by_batch_index(db_pool: &DbPool, batch_index: i64) -> Result<BlocksResponse> {
+    let batch_hash = batch_query::get_hash_by_index(db_pool, batch_index)
         .await
         .map_err(|e| api_err!(e))?;
     if batch_hash.is_none() {
-        return Ok(BlocksResponse::from_batch_blocks(INVALID_IDNEX, vec![]));
+        return Ok(BlocksResponse::from_batch_blocks(INVALID_INDEX, vec![]));
     }
     let batch_hash = batch_hash.unwrap();
 
-    let block_num_range =
-        chunk_query::get_block_num_range_by_batch_hash(&state.db_pool, batch_hash)
-            .await
-            .map_err(|e| api_err!(e))?;
+    let block_num_range = chunk_query::get_block_num_range_by_batch_hash(db_pool, batch_hash)
+        .await
+        .map_err(|e| api_err!(e))?;
     if block_num_range.is_none() {
-        return Ok(BlocksResponse::from_batch_blocks(INVALID_IDNEX, vec![]));
+        return Ok(BlocksResponse::from_batch_blocks(INVALID_INDEX, vec![]));
     }
     let (start_block_num, end_block_num) = block_num_range.unwrap();
 
-    let blocks =
-        block_query::get_blocks_by_num_range(&state.db_pool, start_block_num, end_block_num)
-            .await
-            .map_err(|e| api_err!(e))?;
+    let blocks = block_query::get_blocks_by_num_range(db_pool, start_block_num, end_block_num)
+        .await
+        .map_err(|e| api_err!(e))?;
 
     Ok(BlocksResponse::from_batch_blocks(batch_index, blocks))
 }
 
-fn query_blocks_by_chunk_index(chunk_index: i64) -> Result<BlocksResponse> {
-    let chunk_hash = chunk_query::get_hash_by_index(&state.db_pool, chunk_index)
+async fn query_blocks_by_chunk_index(db_pool: &DbPool, chunk_index: i64) -> Result<BlocksResponse> {
+    let chunk_hash = chunk_query::get_hash_by_index(db_pool, chunk_index)
         .await
         .map_err(|e| api_err!(e))?;
     if chunk_hash.is_none() {
-        return Ok(BlocksResponse::from_chunk_blocks(INVALID_IDNEX, vec![]));
+        return Ok(BlocksResponse::from_chunk_blocks(INVALID_INDEX, vec![]));
     }
     let chunk_hash = chunk_hash.unwrap();
 
-    let blocks = block_query::fetch_all(&state.db_pool, &chunk_hash)
+    let blocks = block_query::fetch_all(db_pool, &chunk_hash)
         .await
         .map_err(|e| api_err!(e))?;
 

@@ -1,7 +1,6 @@
 use crate::db::models;
 use poem_openapi::Object;
 use rust_decimal::Decimal;
-use std::fmt;
 
 #[derive(Clone, Debug, Object)]
 pub struct Chunk {

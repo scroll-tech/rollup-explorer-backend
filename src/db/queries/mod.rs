@@ -1,2 +1,3 @@
-pub mod block_batch_query;
-pub mod block_trace_query;
+pub mod batch_query;
+pub mod block_query;
+pub mod chunk_query;

@@ -1,5 +1,7 @@
-pub mod block_batch;
-pub mod block_trace;
+pub mod batch;
+pub mod block;
+pub mod chunk;
 
-pub use block_batch::*;
-pub use block_trace::*;
+pub use batch::*;
+pub use block::*;
+pub use chunk::*;
