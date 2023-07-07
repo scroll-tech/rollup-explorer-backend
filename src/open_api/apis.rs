@@ -162,7 +162,7 @@ impl Apis {
         let (batch_index, chunks) = if let Some(hash) = batch_hash {
             (
                 batch_index,
-                chunk_query::fetch_all(&state.db_pool, &hash)
+                chunk_query::fetch_by_batch_hash(&state.db_pool, &hash)
                     .await
                     .map_err(|e| api_err!(e))?,
             )
@@ -318,7 +318,7 @@ async fn query_blocks_by_batch_index(db_pool: &DbPool, batch_index: i64) -> Resu
     }
     let batch_hash = batch_hash.unwrap();
 
-    let block_num_range = chunk_query::get_block_num_range_by_batch_hash(db_pool, batch_hash)
+    let block_num_range = chunk_query::get_block_num_range_by_batch_hash(db_pool, &batch_hash)
         .await
         .map_err(|e| api_err!(e))?;
     if block_num_range.is_none() {
@@ -326,7 +326,7 @@ async fn query_blocks_by_batch_index(db_pool: &DbPool, batch_index: i64) -> Resu
     }
     let (start_block_num, end_block_num) = block_num_range.unwrap();
 
-    let blocks = block_query::get_blocks_by_num_range(db_pool, start_block_num, end_block_num)
+    let blocks = block_query::fetch_by_num_range(db_pool, start_block_num, end_block_num)
         .await
         .map_err(|e| api_err!(e))?;
 
@@ -342,7 +342,7 @@ async fn query_blocks_by_chunk_index(db_pool: &DbPool, chunk_index: i64) -> Resu
     }
     let chunk_hash = chunk_hash.unwrap();
 
-    let blocks = block_query::fetch_all(db_pool, &chunk_hash)
+    let blocks = block_query::fetch_by_chunk_hash(db_pool, &chunk_hash)
         .await
         .map_err(|e| api_err!(e))?;
 

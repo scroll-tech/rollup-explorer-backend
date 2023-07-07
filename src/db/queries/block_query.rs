@@ -1,44 +1,83 @@
+use super::chunk_query;
 use crate::db::{models::Block, table_name, DbPool};
 use sqlx::{query_as, query_scalar, Result};
 
-pub async fn fetch_all(db_pool: &DbPool, batch_hash: &str) -> Result<Vec<Block>> {
+pub async fn fetch_by_chunk_hash(db_pool: &DbPool, chunk_hash: &str) -> Result<Vec<Block>> {
     let stmt = format!(
         "SELECT
             number,
             tx_num,
             hash,
-            batch_hash,
+            chunk_hash,
             block_timestamp
-        FROM {} WHERE batch_hash = $1 ORDER BY number ASC",
+        FROM {} WHERE chunk_hash = $1 ORDER BY number ASC",
         table_name::BLOCK,
     );
+
     query_as::<_, Block>(&stmt)
-        .bind(batch_hash)
+        .bind(chunk_hash)
         .fetch_all(db_pool)
         .await
 }
 
-pub async fn get_batch_hash_by_trace_hash(
+pub async fn fetch_by_num_range(
     db_pool: &DbPool,
-    trace_hash: &str,
-) -> Result<Option<String>> {
+    start_num: i64,
+    end_num: i64,
+) -> Result<Vec<Block>> {
     let stmt = format!(
-        "SELECT batch_hash FROM {} where LOWER(hash) = LOWER($1)",
+        "SELECT
+            number,
+            tx_num,
+            hash,
+            chunk_hash,
+            block_timestamp
+        FROM {} WHERE number >= $1 AND number <= $2 ORDER BY number ASC",
         table_name::BLOCK,
     );
-    query_scalar::<_, String>(&stmt)
-        .bind(trace_hash)
-        .fetch_optional(db_pool)
+
+    query_as::<_, Block>(&stmt)
+        .bind(start_num)
+        .bind(end_num)
+        .fetch_all(db_pool)
         .await
+}
+
+pub async fn get_batch_hash_by_block_hash(
+    db_pool: &DbPool,
+    block_hash: &str,
+) -> Result<Option<String>> {
+    let stmt = format!(
+        "SELECT chunk_hash FROM {} where LOWER(hash) = LOWER($1)",
+        table_name::BLOCK,
+    );
+
+    let chunk_hash = query_scalar::<_, String>(&stmt)
+        .bind(block_hash)
+        .fetch_optional(db_pool)
+        .await?;
+
+    Ok(if let Some(chunk_hash) = chunk_hash {
+        chunk_query::get_batch_hash_by_chunk_hash(db_pool, &chunk_hash).await?
+    } else {
+        None
+    })
 }
 
 pub async fn get_batch_hash_by_number(db_pool: &DbPool, number: i64) -> Result<Option<String>> {
     let stmt = format!(
-        "SELECT batch_hash FROM {} where number = $1",
+        "SELECT chunk_hash FROM {} where number = $1",
         table_name::BLOCK,
     );
-    query_scalar::<_, String>(&stmt)
+
+    let chunk_hash = query_scalar::<_, String>(&stmt)
         .bind(number)
         .fetch_optional(db_pool)
-        .await
+        .await?;
+
+    Ok(if let Some(chunk_hash) = chunk_hash {
+        chunk_query::get_batch_hash_by_chunk_hash(db_pool, &chunk_hash).await?
+    } else {
+        None
+    })
 }

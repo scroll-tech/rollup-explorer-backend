@@ -6,6 +6,6 @@ pub struct Block {
     pub number: i64,
     pub tx_num: i32,
     pub hash: String,
-    pub batch_hash: String,
+    pub chunk_hash: Option<String>,
     pub block_timestamp: Decimal,
 }
