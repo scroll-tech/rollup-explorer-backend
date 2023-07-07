@@ -318,13 +318,10 @@ async fn query_blocks_by_batch_index(db_pool: &DbPool, batch_index: i64) -> Resu
     }
     let batch_hash = batch_hash.unwrap();
 
-    let block_num_range = chunk_query::get_block_num_range_by_batch_hash(db_pool, &batch_hash)
-        .await
-        .map_err(|e| api_err!(e))?;
-    if block_num_range.is_none() {
-        return Ok(BlocksResponse::from_batch_blocks(INVALID_INDEX, vec![]));
-    }
-    let (start_block_num, end_block_num) = block_num_range.unwrap();
+    let (start_block_num, end_block_num) =
+        chunk_query::get_block_num_range_by_batch_hash(db_pool, &batch_hash)
+            .await
+            .map_err(|e| api_err!(e))?;
 
     let blocks = block_query::fetch_by_num_range(db_pool, start_block_num, end_block_num)
         .await

@@ -9,8 +9,11 @@ pub struct Batch {
     pub index: i64,
     pub start_chunk_index: i64,
     pub end_chunk_index: i64,
+    #[sqlx(default)]
     pub start_block_number: Option<i64>,
+    #[sqlx(default)]
     pub end_block_number: Option<i64>,
+    #[sqlx(default)]
     pub total_tx_num: Option<Decimal>,
     pub rollup_status: RollupStatusType,
     pub commit_tx_hash: Option<String>,

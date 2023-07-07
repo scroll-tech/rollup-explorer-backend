@@ -1,4 +1,3 @@
-#![feature(let_else)]
 #![feature(once_cell)]
 
 pub mod cache;

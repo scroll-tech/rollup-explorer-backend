@@ -40,18 +40,18 @@ pub async fn get_batch_hash_by_chunk_hash(
 pub async fn get_block_num_range_by_batch_hash(
     db_pool: &DbPool,
     batch_hash: &str,
-) -> Result<Option<(i64, i64)>> {
+) -> Result<(i64, i64)> {
     let stmt = format!(
         "SELECT
-            start_block_number,
-            end_block_number
+            COALESCE(MIN(start_block_number), 0),
+            COALESCE(MAX(end_block_number), 0)
         FROM {} where batch_hash = $1",
         table_name::CHUNK
     );
 
     query_as::<_, (i64, i64)>(&stmt)
         .bind(batch_hash)
-        .fetch_optional(db_pool)
+        .fetch_one(db_pool)
         .await
 }
 
