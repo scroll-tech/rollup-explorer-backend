@@ -5,7 +5,7 @@ pub mod models;
 pub use queries::*;
 
 pub type DbPool = sqlx::postgres::PgPool;
-pub type RollupStatusType = i32;
+pub type RollupStatusType = i16;
 
 pub mod table_name {
     pub const BATCH: &str = "batch";
