@@ -45,7 +45,7 @@ pub struct Batch {
     end_chunk_index: i64,
     start_block_number: i64,
     end_block_number: i64,
-    total_tx_num: Decimal,
+    total_tx_num: i64,
     rollup_status: String,
     commit_tx_hash: Option<String>,
     finalize_tx_hash: Option<String>,

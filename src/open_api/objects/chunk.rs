@@ -8,7 +8,7 @@ pub struct Chunk {
     index: i64,
     start_block_number: i64,
     end_block_number: i64,
-    total_tx_num: i64,
+    total_tx_num: i32,
     created_at: Decimal,
 }
 

@@ -1,6 +1,5 @@
 use crate::db::RollupStatusType;
 use chrono::NaiveDateTime;
-use rust_decimal::Decimal;
 use serde::Serialize;
 
 #[derive(sqlx::FromRow, Clone, Debug, Serialize)]
@@ -14,7 +13,7 @@ pub struct Batch {
     #[sqlx(default)]
     pub end_block_number: Option<i64>,
     #[sqlx(default)]
-    pub total_tx_num: Option<Decimal>,
+    pub total_tx_num: Option<i64>,
     pub rollup_status: RollupStatusType,
     pub commit_tx_hash: Option<String>,
     pub finalize_tx_hash: Option<String>,

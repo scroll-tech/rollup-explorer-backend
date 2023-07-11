@@ -1,5 +1,4 @@
 use crate::db::{models::Chunk, table_name, DbPool};
-use rust_decimal::Decimal;
 use sqlx::{query_as, query_scalar, Result};
 
 pub async fn fetch_by_batch_hash(db_pool: &DbPool, batch_hash: &str) -> Result<Vec<Chunk>> {
@@ -107,7 +106,7 @@ pub async fn get_total_tx_num_by_index_range(
     db_pool: &DbPool,
     start_chunk_index: i64,
     end_chunk_index: i64,
-) -> Result<Decimal> {
+) -> Result<i64> {
     let stmt = format!(
         "SELECT
             COALESCE(
@@ -118,7 +117,7 @@ pub async fn get_total_tx_num_by_index_range(
         table_name::CHUNK,
     );
 
-    query_scalar::<_, Decimal>(&stmt)
+    query_scalar::<_, i64>(&stmt)
         .bind(start_chunk_index)
         .bind(end_chunk_index)
         .fetch_one(db_pool)
