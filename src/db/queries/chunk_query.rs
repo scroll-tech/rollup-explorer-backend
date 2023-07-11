@@ -12,7 +12,9 @@ pub async fn fetch_by_batch_hash(db_pool: &DbPool, batch_hash: &str) -> Result<V
             hash,
             batch_hash,
             created_at
-        FROM {} WHERE batch_hash = $1 ORDER BY index ASC",
+        FROM {}
+        WHERE batch_hash = $1 AND deleted_at IS NULL
+        ORDER BY index ASC",
         table_name::CHUNK,
     );
 
@@ -27,7 +29,8 @@ pub async fn get_batch_hash_by_chunk_hash(
     chunk_hash: &str,
 ) -> Result<Option<String>> {
     let stmt = format!(
-        "SELECT batch_hash FROM {} where LOWER(hash) = LOWER($1)",
+        "SELECT batch_hash FROM {}
+        WHERE LOWER(hash) = LOWER($1) AND deleted_at IS NULL",
         table_name::CHUNK,
     );
 
@@ -45,8 +48,9 @@ pub async fn get_block_num_range_by_batch_hash(
         "SELECT
             COALESCE(MIN(start_block_number), 0),
             COALESCE(MAX(end_block_number), 0)
-        FROM {} where batch_hash = $1",
-        table_name::CHUNK
+        FROM {}
+        WHERE batch_hash = $1 AND deleted_at IS NULL",
+        table_name::CHUNK,
     );
 
     query_as::<_, (i64, i64)>(&stmt)
@@ -60,7 +64,8 @@ pub async fn get_end_block_number_by_index(
     chunk_index: i64,
 ) -> Result<Option<i64>> {
     let stmt = format!(
-        "SELECT end_block_number FROM {} where index = $1",
+        "SELECT end_block_number FROM {}
+        WHERE index = $1",
         table_name::CHUNK
     );
     query_scalar::<_, i64>(&stmt)
@@ -70,7 +75,11 @@ pub async fn get_end_block_number_by_index(
 }
 
 pub async fn get_hash_by_index(db_pool: &DbPool, index: i64) -> Result<Option<String>> {
-    let stmt = format!("SELECT hash FROM {} where index = $1", table_name::CHUNK);
+    let stmt = format!(
+        "SELECT hash FROM {}
+        WHERE index = $1 AND deleted_at IS NULL",
+        table_name::CHUNK,
+    );
 
     query_scalar::<_, String>(&stmt)
         .bind(index)
@@ -83,8 +92,9 @@ pub async fn get_start_block_number_by_index(
     chunk_index: i64,
 ) -> Result<Option<i64>> {
     let stmt = format!(
-        "SELECT start_block_number FROM {} where index = $1",
-        table_name::CHUNK
+        "SELECT start_block_number FROM {}
+        where index = $1",
+        table_name::CHUNK,
     );
 
     query_scalar::<_, i64>(&stmt)
@@ -103,7 +113,8 @@ pub async fn get_total_tx_num_by_index_range(
             COALESCE(
                 SUM(total_l1_messages_popped_in_chunk + total_l2_tx_num),
                 0
-            ) FROM {} where index >= $1 AND index <= $2",
+            ) FROM {}
+            WHERE index >= $1 AND index <= $2 AND deleted_at IS NULL",
         table_name::CHUNK,
     );
 

@@ -10,7 +10,9 @@ pub async fn fetch_by_chunk_hash(db_pool: &DbPool, chunk_hash: &str) -> Result<V
             hash,
             chunk_hash,
             block_timestamp
-        FROM {} WHERE chunk_hash = $1 ORDER BY number ASC",
+        FROM {}
+        WHERE chunk_hash = $1 AND deleted_at IS NULL
+        ORDER BY number ASC",
         table_name::BLOCK,
     );
 
@@ -32,7 +34,9 @@ pub async fn fetch_by_num_range(
             hash,
             chunk_hash,
             block_timestamp
-        FROM {} WHERE number >= $1 AND number <= $2 ORDER BY number ASC",
+        FROM {}
+        WHERE number >= $1 AND number <= $2 AND deleted_at IS NULL
+        ORDER BY number ASC",
         table_name::BLOCK,
     );
 
@@ -48,7 +52,8 @@ pub async fn get_batch_hash_by_block_hash(
     block_hash: &str,
 ) -> Result<Option<String>> {
     let stmt = format!(
-        "SELECT chunk_hash FROM {} where LOWER(hash) = LOWER($1)",
+        "SELECT chunk_hash FROM {}
+        where LOWER(hash) = LOWER($1) AND deleted_at IS NULL",
         table_name::BLOCK,
     );
 
@@ -66,7 +71,8 @@ pub async fn get_batch_hash_by_block_hash(
 
 pub async fn get_batch_hash_by_number(db_pool: &DbPool, number: i64) -> Result<Option<String>> {
     let stmt = format!(
-        "SELECT chunk_hash FROM {} where number = $1",
+        "SELECT chunk_hash FROM {}
+        where number = $1 AND deleted_at IS NULL",
         table_name::BLOCK,
     );
 
