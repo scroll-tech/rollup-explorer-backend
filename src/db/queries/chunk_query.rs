@@ -58,17 +58,17 @@ pub async fn get_block_num_range_by_batch_hash(
         .await
 }
 
-pub async fn get_end_block_number_by_index(
+pub async fn get_end_block_number_by_chunk_hash(
     db_pool: &DbPool,
-    chunk_index: i64,
+    chunk_hash: &str,
 ) -> Result<Option<i64>> {
     let stmt = format!(
         "SELECT end_block_number FROM {}
-        WHERE index = $1",
+        where hash = $1 AND deleted_at IS NULL",
         table_name::CHUNK
     );
     query_scalar::<_, i64>(&stmt)
-        .bind(chunk_index)
+        .bind(chunk_hash)
         .fetch_optional(db_pool)
         .await
 }
@@ -86,18 +86,18 @@ pub async fn get_hash_by_index(db_pool: &DbPool, index: i64) -> Result<Option<St
         .await
 }
 
-pub async fn get_start_block_number_by_index(
+pub async fn get_start_block_number_by_chunk_hash(
     db_pool: &DbPool,
-    chunk_index: i64,
+    chunk_hash: &str,
 ) -> Result<Option<i64>> {
     let stmt = format!(
         "SELECT start_block_number FROM {}
-        where index = $1",
+        where hash = $1 AND deleted_at IS NULL",
         table_name::CHUNK,
     );
 
     query_scalar::<_, i64>(&stmt)
-        .bind(chunk_index)
+        .bind(chunk_hash)
         .fetch_optional(db_pool)
         .await
 }

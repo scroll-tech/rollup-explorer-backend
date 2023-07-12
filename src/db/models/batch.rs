@@ -8,6 +8,8 @@ pub struct Batch {
     pub index: i64,
     pub start_chunk_index: i64,
     pub end_chunk_index: i64,
+    pub start_chunk_hash: String,
+    pub end_chunk_hash: String,
     #[sqlx(default)]
     pub start_block_number: Option<i64>,
     #[sqlx(default)]

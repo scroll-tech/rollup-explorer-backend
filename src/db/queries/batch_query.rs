@@ -10,6 +10,8 @@ pub async fn fetch_all(db_pool: &DbPool, offset: u64, limit: u64) -> Result<Vec<
             index,
             start_chunk_index,
             end_chunk_index,
+            start_chunk_hash,
+            end_chunk_hash,
             rollup_status,
             commit_tx_hash,
             finalize_tx_hash,
@@ -39,6 +41,8 @@ pub async fn fetch_one(db_pool: &DbPool, index: i64) -> Result<Option<Batch>> {
             index,
             start_chunk_index,
             end_chunk_index,
+            start_chunk_hash,
+            end_chunk_hash,
             rollup_status,
             commit_tx_hash,
             finalize_tx_hash,
@@ -114,9 +118,9 @@ pub async fn get_max_status_indexes(db_pool: &DbPool) -> Result<HashMap<RollupSt
 
 async fn complete_batch(db_pool: &DbPool, batch: &mut Batch) -> Result<()> {
     batch.start_block_number =
-        chunk_query::get_start_block_number_by_index(db_pool, batch.start_chunk_index).await?;
+        chunk_query::get_start_block_number_by_chunk_hash(db_pool, &batch.start_chunk_hash).await?;
     batch.end_block_number =
-        chunk_query::get_end_block_number_by_index(db_pool, batch.end_chunk_index).await?;
+        chunk_query::get_end_block_number_by_chunk_hash(db_pool, &batch.end_chunk_hash).await?;
     batch.total_tx_num = Some(
         chunk_query::get_total_tx_num_by_index_range(
             db_pool,
