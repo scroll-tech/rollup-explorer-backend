@@ -1,10 +1,13 @@
 use anyhow::{anyhow, bail, Result};
-use std::any::Any;
-use std::collections::HashMap;
-use std::sync::mpsc::{channel, sync_channel, Sender, SyncSender};
-use std::sync::Arc;
-use std::time::Duration;
-use std::time::Instant;
+use std::{
+    any::Any,
+    collections::HashMap,
+    sync::{
+        mpsc::{channel, sync_channel, Sender, SyncSender},
+        Arc,
+    },
+    time::{Duration, Instant},
+};
 use tokio::task::JoinHandle;
 
 type Key = String;

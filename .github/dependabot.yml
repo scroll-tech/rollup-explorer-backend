@@ -4,4 +4,5 @@ updates:
   directory: "/"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 5
+  # Disable updates
+  open-pull-requests-limit: 0

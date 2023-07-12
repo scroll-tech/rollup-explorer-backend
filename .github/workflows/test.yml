@@ -6,12 +6,16 @@ on:
       - alpha
       - develop
   pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
     branches:
       - alpha
       - develop
 
 jobs:
   unit-test:
+    if: |
+      github.event.pull_request.draft == false ||
+      github.event.action == 'ready_for_review'
     name: unit-test
     runs-on: ubuntu-latest
     steps:

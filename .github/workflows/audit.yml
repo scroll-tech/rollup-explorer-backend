@@ -8,6 +8,7 @@ on:
     paths:
       - Cargo.lock
   pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
     branches:
       - alpha
       - develop
@@ -16,6 +17,9 @@ on:
 
 jobs:
   security-audit:
+    if: |
+      github.event.pull_request.draft == false ||
+      github.event.action == 'ready_for_review'
     name: security-audit
     runs-on: ubuntu-latest
     steps:

@@ -1,20 +1,29 @@
-use crate::cache::*;
-use crate::db::models::BlockTrace;
-use crate::open_api::objects::Block;
+use crate::{cache::*, db::models, open_api::objects::Block};
 use poem_openapi::Object;
 
 #[derive(Clone, Debug, Object)]
 pub struct BlocksResponse {
-    batch_index: i64,
+    batch_index: Option<i64>,
+    chunk_index: Option<i64>,
     blocks: Vec<Block>,
 }
 
 impl BlocksResponse {
-    pub fn new(batch_index: i64, block_traces: Vec<BlockTrace>) -> Self {
-        let blocks = block_traces.into_iter().map(Into::into).collect();
+    pub fn from_batch_blocks(batch_index: i64, blocks: Vec<models::Block>) -> Self {
+        let blocks = blocks.into_iter().map(Into::into).collect();
 
         Self {
-            batch_index,
+            batch_index: Some(batch_index),
+            chunk_index: None,
+            blocks,
+        }
+    }
+    pub fn from_chunk_blocks(chunk_index: i64, blocks: Vec<models::Block>) -> Self {
+        let blocks = blocks.into_iter().map(Into::into).collect();
+
+        Self {
+            batch_index: None,
+            chunk_index: Some(chunk_index),
             blocks,
         }
     }

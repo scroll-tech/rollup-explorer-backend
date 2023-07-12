@@ -1,6 +1,4 @@
-use crate::cache::*;
-use crate::db::models::BlockBatch;
-use crate::open_api::objects::Batch;
+use crate::{cache::*, db::models, open_api::objects::Batch};
 use poem_openapi::Object;
 
 #[derive(Clone, Debug, Object)]
@@ -10,8 +8,8 @@ pub struct BatchesResponse {
 }
 
 impl BatchesResponse {
-    pub fn new(total: i64, block_batches: Vec<BlockBatch>) -> Self {
-        let batches = block_batches.into_iter().map(Into::into).collect();
+    pub fn new(total: i64, batches: Vec<models::Batch>) -> Self {
+        let batches = batches.into_iter().map(Into::into).collect();
 
         Self { total, batches }
     }

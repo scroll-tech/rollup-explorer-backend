@@ -3,12 +3,19 @@ use chrono::NaiveDateTime;
 use serde::Serialize;
 
 #[derive(sqlx::FromRow, Clone, Debug, Serialize)]
-pub struct BlockBatch {
+pub struct Batch {
     pub hash: String,
     pub index: i64,
-    pub start_block_number: i64,
-    pub end_block_number: i64,
-    pub total_tx_num: i64,
+    pub start_chunk_index: i64,
+    pub end_chunk_index: i64,
+    pub start_chunk_hash: String,
+    pub end_chunk_hash: String,
+    #[sqlx(default)]
+    pub start_block_number: Option<i64>,
+    #[sqlx(default)]
+    pub end_block_number: Option<i64>,
+    #[sqlx(default)]
+    pub total_tx_num: Option<i64>,
     pub rollup_status: RollupStatusType,
     pub commit_tx_hash: Option<String>,
     pub finalize_tx_hash: Option<String>,

@@ -1,10 +1,6 @@
-use crate::cache::Cache;
-use crate::db::DbPool;
-use crate::Settings;
+use crate::{cache::Cache, db::DbPool, Settings};
 use anyhow::Result;
-use poem::listener::TcpListener;
-use poem::middleware::Cors;
-use poem::{EndpointExt, Route, Server};
+use poem::{listener::TcpListener, middleware::Cors, EndpointExt, Route, Server};
 use poem_openapi::OpenApiService;
 use std::sync::Arc;
 

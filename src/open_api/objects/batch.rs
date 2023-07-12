@@ -1,5 +1,4 @@
-use crate::db::models::BlockBatch;
-use crate::db::RollupStatusType;
+use crate::db::{models, RollupStatusType};
 use poem_openapi::Object;
 use rust_decimal::Decimal;
 use std::fmt;
@@ -40,12 +39,16 @@ impl From<RollupStatusType> for RollupStatus {
 
 #[derive(Clone, Debug, Object)]
 pub struct Batch {
-    id: String,
+    hash: String,
     index: i64,
+    start_chunk_index: i64,
+    end_chunk_index: i64,
     start_block_number: i64,
     end_block_number: i64,
     total_tx_num: i64,
     rollup_status: String,
+    start_chunk_hash: String,
+    end_chunk_hash: String,
     commit_tx_hash: Option<String>,
     finalize_tx_hash: Option<String>,
     created_at: Decimal,
@@ -53,20 +56,24 @@ pub struct Batch {
     finalized_at: Option<Decimal>,
 }
 
-impl From<BlockBatch> for Batch {
-    fn from(block_batch: BlockBatch) -> Self {
+impl From<models::Batch> for Batch {
+    fn from(batch: models::Batch) -> Self {
         Self {
-            id: block_batch.hash,
-            index: block_batch.index,
-            start_block_number: block_batch.start_block_number,
-            end_block_number: block_batch.end_block_number,
-            total_tx_num: block_batch.total_tx_num,
-            rollup_status: RollupStatus::from(block_batch.rollup_status).to_string(),
-            commit_tx_hash: block_batch.commit_tx_hash,
-            finalize_tx_hash: block_batch.finalize_tx_hash,
-            created_at: block_batch.created_at.timestamp().into(),
-            committed_at: block_batch.committed_at.map(|t| t.timestamp().into()),
-            finalized_at: block_batch.finalized_at.map(|t| t.timestamp().into()),
+            hash: batch.hash,
+            index: batch.index,
+            start_chunk_index: batch.start_chunk_index,
+            end_chunk_index: batch.end_chunk_index,
+            start_block_number: batch.start_block_number.unwrap_or_default(),
+            end_block_number: batch.end_block_number.unwrap_or_default(),
+            total_tx_num: batch.total_tx_num.unwrap_or_default(),
+            rollup_status: RollupStatus::from(batch.rollup_status).to_string(),
+            start_chunk_hash: batch.start_chunk_hash,
+            end_chunk_hash: batch.end_chunk_hash,
+            commit_tx_hash: batch.commit_tx_hash,
+            finalize_tx_hash: batch.finalize_tx_hash,
+            created_at: batch.created_at.timestamp().into(),
+            committed_at: batch.committed_at.map(|t| t.timestamp().into()),
+            finalized_at: batch.finalized_at.map(|t| t.timestamp().into()),
         }
     }
 }

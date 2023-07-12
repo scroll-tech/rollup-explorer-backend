@@ -1,1 +1,2 @@
 db_url = "postgres://postgres:scroll2022@localhost:5434/scroll"
+open_api_addr = "http://localhost:5001"
