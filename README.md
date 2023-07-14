@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This repo contains the backend code for the [Rollup Explorer](https://scroll.io/alpha/rollupscan) that's currently being maintained by Scroll.
+This repo contains the backend code for the [Rollup Explorer](https://scroll.io/rollupscan) that's currently maintained by Scroll.
 
 ## License
 
@@ -46,7 +46,7 @@ Run the following:
 
 ## Deployment
 
-Currently deployed by Scroll's devops and used by https://scroll.io/alpha/rollupscan.
+Currently deployed by Scroll's devops and used by https://scroll.io/rollupscan.
 
 [//]: # "badges"
 [Rust toolchain]: https://rustup.rs
