@@ -53,12 +53,12 @@ pub async fn get_batch_hash_by_block_hash(
 ) -> Result<Option<String>> {
     let stmt = format!(
         "SELECT chunk_hash FROM {}
-        where LOWER(hash) = LOWER($1) AND deleted_at IS NULL",
+        where hash = $1 AND deleted_at IS NULL",
         table_name::BLOCK,
     );
 
     let chunk_hash = query_scalar::<_, String>(&stmt)
-        .bind(block_hash)
+        .bind(block_hash.to_lowercase())
         .fetch_optional(db_pool)
         .await?;
 

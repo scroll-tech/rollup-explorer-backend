@@ -4,6 +4,7 @@ use serde::Deserialize;
 use std::{env, sync::OnceLock};
 
 const DEFAULT_BIND_PORT: &str = "5001";
+const DEFAULT_MAX_CONNS: u32 = 200;
 
 static SETTINGS: OnceLock<Settings> = OnceLock::new();
 
@@ -19,16 +20,23 @@ pub struct Settings {
     run_mode: String,
     ///  Max value of query parameter `per_page` (100 as default)
     pub max_per_page: u64,
+    ///  Max DB connections (1000 as default)
+    pub max_db_conns: u32,
 }
 
 impl Settings {
     pub fn init() -> Result<()> {
         let bind_port = env::var("BIND_PORT").unwrap_or_else(|_| DEFAULT_BIND_PORT.into());
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
+        let max_db_conns = env::var("MAX_DB_CONNS").map_or_else(
+            |_| DEFAULT_MAX_CONNS,
+            |conns| conns.parse::<u32>().ok().unwrap_or(DEFAULT_MAX_CONNS),
+        );
         let config = Config::builder()
             .set_default("bind_port", bind_port)?
             .set_default("run_mode", run_mode.clone())?
             .set_default("max_per_page", 100)?
+            .set_default("max_db_conns", max_db_conns)?
             .add_source(File::with_name("config/default"))
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
             .add_source(Environment::default())
