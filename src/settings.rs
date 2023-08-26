@@ -4,7 +4,7 @@ use serde::Deserialize;
 use std::{env, sync::OnceLock};
 
 const DEFAULT_BIND_PORT: &str = "5001";
-const DEFAULT_MAX_CONNS: u32 = 1000;
+const DEFAULT_MAX_CONNS: u32 = 200;
 
 static SETTINGS: OnceLock<Settings> = OnceLock::new();
 
