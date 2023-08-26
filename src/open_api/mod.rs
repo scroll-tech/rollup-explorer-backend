@@ -2,6 +2,7 @@ use crate::{cache::Cache, db::DbPool, Settings};
 use anyhow::Result;
 use poem::{listener::TcpListener, middleware::Cors, EndpointExt, Route, Server};
 use poem_openapi::OpenApiService;
+use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
 mod apis;
@@ -17,7 +18,11 @@ struct State {
 
 pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let settings = Settings::get();
-    let db_pool = DbPool::connect(settings.db_url.as_str()).await?;
+    let db_pool = PgPoolOptions::new()
+        .max_connections(settings.max_db_conns)
+        .connect(settings.db_url.as_str())
+        .await?;
+
     let max_per_page = settings.max_per_page;
     let state = State {
         cache,
