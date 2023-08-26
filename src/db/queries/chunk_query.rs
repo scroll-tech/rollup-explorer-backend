@@ -29,12 +29,12 @@ pub async fn get_batch_hash_by_chunk_hash(
 ) -> Result<Option<String>> {
     let stmt = format!(
         "SELECT batch_hash FROM {}
-        WHERE LOWER(hash) = LOWER($1) AND deleted_at IS NULL",
+        WHERE hash = $1 AND deleted_at IS NULL",
         table_name::CHUNK,
     );
 
     query_scalar::<_, String>(&stmt)
-        .bind(chunk_hash)
+        .bind(chunk_hash.to_lowercase())
         .fetch_optional(db_pool)
         .await
 }
