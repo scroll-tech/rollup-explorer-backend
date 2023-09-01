@@ -8,7 +8,6 @@ pub enum RollupStatus {
     Precommitted,
     Committed,
     Finalized,
-    Skipped,
     Unknown,
 }
 
@@ -18,7 +17,6 @@ impl fmt::Display for RollupStatus {
             Self::Precommitted => "precommitted",
             Self::Committed => "committed",
             Self::Finalized => "finalized",
-            Self::Skipped => "skipped",
             Self::Unknown => "unknown",
         };
         write!(f, "{s}")
@@ -31,7 +29,6 @@ impl From<RollupStatusType> for RollupStatus {
             1 | 2 => Self::Precommitted,
             3 | 4 => Self::Committed,
             5 => Self::Finalized,
-            6 => Self::Skipped,
             _ => Self::Unknown,
         }
     }
