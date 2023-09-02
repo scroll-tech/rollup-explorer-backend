@@ -18,9 +18,7 @@ impl LastBatchIndexesResponse {
         for (status, index) in status_indexes.into_iter() {
             all_index = all_index.max(index);
             match status.into() {
-                RollupStatus::Committed | RollupStatus::Skipped => {
-                    committed_index = committed_index.max(index)
-                }
+                RollupStatus::Committed => committed_index = committed_index.max(index),
                 RollupStatus::Finalized => finalized_index = finalized_index.max(index),
                 _ => (),
             }
