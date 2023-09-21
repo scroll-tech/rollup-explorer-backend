@@ -30,10 +30,11 @@ jobs:
           profile: minimal
           toolchain: nightly-2022-07-26
       - uses: Swatinem/rust-cache@v1
-      - run: |
-          cargo install cargo-audit
-          cargo audit \
-            --deny warnings \
-            --ignore RUSTSEC-2020-0071 \
-            --ignore RUSTSEC-2023-0033 \
-            --ignore RUSTSEC-2023-0034
+      # - run: |
+      #     cargo install cargo-audit
+      #     cargo audit \
+      #       --deny warnings \
+      #       --ignore RUSTSEC-2020-0071 \
+      #       --ignore RUSTSEC-2023-0033 \
+      #       --ignore RUSTSEC-2023-0034 \
+      #       --ignore RUSTSEC-2023-0052

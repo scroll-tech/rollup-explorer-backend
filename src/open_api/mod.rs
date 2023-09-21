@@ -1,13 +1,23 @@
 use crate::{cache::Cache, db::DbPool, Settings};
 use anyhow::Result;
-use poem::{listener::TcpListener, middleware::Cors, EndpointExt, Route, Server};
+use lazy_static::lazy_static;
+use poem::{
+    endpoint::PrometheusExporter, listener::TcpListener, middleware::Cors, EndpointExt, Route,
+    Server,
+};
 use poem_openapi::OpenApiService;
+use prometheus::{IntCounter, Registry};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
 mod apis;
 mod objects;
 mod responses;
+
+lazy_static! {
+    pub static ref INCOMING_REQUESTS: IntCounter =
+        IntCounter::new("incoming_requests", "Incoming Requests").unwrap();
+}
 
 #[derive(Clone, Debug)]
 struct State {
@@ -39,6 +49,7 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let app = Route::new()
         .nest("/", ui)
         .nest("/api", svr)
+        .at("/metrics", PrometheusExporter::new(prometheus_registry()))
         .at("/spec", poem::endpoint::make_sync(move |_| spec.clone()))
         // TODO: Fix to only allow specified origins.
         .with(Cors::new().allow_origins_fn(|_| true))
@@ -48,4 +59,15 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
     Server::new(TcpListener::bind(bind_addr)).run(app).await?;
 
     Ok(())
+}
+
+fn prometheus_registry() -> Registry {
+    let registry = Registry::new();
+    registry
+        .register(Box::new(INCOMING_REQUESTS.clone()))
+        .unwrap();
+
+    // TODO: add other metrics.
+
+    registry
 }

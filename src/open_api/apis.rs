@@ -1,7 +1,7 @@
 use crate::{
     consts::*,
     db::*,
-    open_api::{responses::*, State},
+    open_api::{responses::*, State, INCOMING_REQUESTS},
 };
 use poem::{error::InternalServerError, web::Data, Result};
 use poem_openapi::{param::Query, payload::Json, OpenApi};
@@ -21,6 +21,8 @@ pub(crate) struct Apis;
 impl Apis {
     #[oai(path = "/batch", method = "get")]
     async fn batch(&self, state: Data<&State>, index: Query<i64>) -> Result<Json<BatchResponse>> {
+        INCOMING_REQUESTS.inc();
+
         let index = index.0;
 
         // Return directly if cached.
@@ -58,6 +60,8 @@ impl Apis {
         page: Query<Option<u64>>,
         per_page: Query<Option<u64>>,
     ) -> Result<Json<BatchesResponse>> {
+        INCOMING_REQUESTS.inc();
+
         let limit = per_page.0.map_or_else(
             || DEFAULT_PER_PAGE,
             |val| {
@@ -114,6 +118,8 @@ impl Apis {
         state: Data<&State>,
         batch_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
+        INCOMING_REQUESTS.inc();
+
         let batch_index = batch_index.0;
 
         // Return directly if cached.
@@ -147,6 +153,8 @@ impl Apis {
         state: Data<&State>,
         batch_index: Query<i64>,
     ) -> Result<Json<ChunksResponse>> {
+        INCOMING_REQUESTS.inc();
+
         let batch_index = batch_index.0;
 
         // Return directly if cached.
@@ -193,6 +201,8 @@ impl Apis {
         state: Data<&State>,
         chunk_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
+        INCOMING_REQUESTS.inc();
+
         let chunk_index = chunk_index.0;
 
         // Return directly if cached.
@@ -225,6 +235,8 @@ impl Apis {
         &self,
         state: Data<&State>,
     ) -> Result<Json<LastBatchIndexesResponse>> {
+        INCOMING_REQUESTS.inc();
+
         // Return directly if cached.
         if let Some(response) =
             LastBatchIndexesResponse::from_cache(&state.cache, "last_batch_indexes").await
@@ -262,6 +274,8 @@ impl Apis {
         state: Data<&State>,
         keyword: Query<String>,
     ) -> Result<Json<SearchResponse>> {
+        INCOMING_REQUESTS.inc();
+
         let keyword = keyword.0;
 
         // Return directly if cached.
