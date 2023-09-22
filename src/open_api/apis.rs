@@ -1,8 +1,8 @@
 use crate::{
     consts::*,
     db::*,
-    Settings,
     open_api::{responses::*, State, INCOMING_REQUESTS, RESPONSE_TIME_COLLECTOR},
+    Settings,
 };
 use poem::{error::InternalServerError, web::Data, Result};
 use poem_openapi::{param::Query, payload::Json, OpenApi};
