@@ -2,11 +2,13 @@ use crate::{cache::Cache, db::DbPool, Settings};
 use anyhow::Result;
 use lazy_static::lazy_static;
 use poem::{
-    endpoint::PrometheusExporter, listener::TcpListener, middleware::Cors, EndpointExt, Route,
-    Server,
+    endpoint::PrometheusExporter,
+    listener::TcpListener,
+    middleware::{Cors, TokioMetrics, Tracing},
+    EndpointExt, Route, Server,
 };
 use poem_openapi::OpenApiService;
-use prometheus::{IntCounter, Registry};
+use prometheus::{HistogramOpts, HistogramVec, IntCounter, Registry};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
@@ -17,6 +19,11 @@ mod responses;
 lazy_static! {
     pub static ref INCOMING_REQUESTS: IntCounter =
         IntCounter::new("incoming_requests", "Incoming Requests").unwrap();
+    pub static ref RESPONSE_TIME_COLLECTOR: HistogramVec = HistogramVec::new(
+        HistogramOpts::new("response_time", "Response Times"),
+        &["api"]
+    )
+    .unwrap();
 }
 
 #[derive(Clone, Debug)]
@@ -44,15 +51,18 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let svr = OpenApiService::new(apis::Apis, "Scroll Rollup Explorer", "2.0")
         .server(format!("{open_api_addr}/api"));
 
+    let tokio_metrics = TokioMetrics::new();
     let ui = svr.swagger_ui();
     let spec = svr.spec();
     let app = Route::new()
         .nest("/", ui)
-        .nest("/api", svr)
+        .at("/tokio_metrics", tokio_metrics.exporter())
+        .nest("/api", svr.with(tokio_metrics))
         .at("/metrics", PrometheusExporter::new(prometheus_registry()))
         .at("/spec", poem::endpoint::make_sync(move |_| spec.clone()))
         // TODO: Fix to only allow specified origins.
         .with(Cors::new().allow_origins_fn(|_| true))
+        .with(Tracing)
         .data(state);
 
     let bind_addr = format!("0.0.0.0:{}", settings.bind_port);
@@ -67,7 +77,9 @@ fn prometheus_registry() -> Registry {
         .register(Box::new(INCOMING_REQUESTS.clone()))
         .unwrap();
 
-    // TODO: add other metrics.
+    registry
+        .register(Box::new(RESPONSE_TIME_COLLECTOR.clone()))
+        .unwrap();
 
     registry
 }

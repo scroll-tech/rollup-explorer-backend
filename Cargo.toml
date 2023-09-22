@@ -14,7 +14,7 @@ config = "0.13"
 dotenvy = "0.15"
 lazy_static = "1.4"
 log = "0.4"
-poem = { version = "1.3", features = ["prometheus"] }
+poem = { version = "1.3", features = ["prometheus", "tokio-metrics"] }
 poem-openapi = { version = "2.0", features = ["chrono", "rust_decimal", "swagger-ui"]}
 prometheus = "0.13"
 rust_decimal = "1.29"
