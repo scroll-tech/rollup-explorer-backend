@@ -1,7 +1,7 @@
 use crate::{
     consts::*,
     db::*,
-    open_api::{responses::*, State, INCOMING_REQUESTS, RESPONSE_TIME_COLLECTOR},
+    open_api::{responses::*, State, CACHE_HITS, INCOMING_REQUESTS, RESPONSE_TIME_COLLECTOR},
 };
 use poem::{error::InternalServerError, web::Data, Result};
 use poem_openapi::{param::Query, payload::Json, OpenApi};
@@ -30,6 +30,7 @@ impl Apis {
         let cache_key = format!("batch-{index}");
         if let Some(response) = BatchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get batch from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&[cache_key.as_str()]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["batch"])
@@ -96,6 +97,7 @@ impl Apis {
         if let Some(response) = BatchesResponse::from_cache(state.cache.as_ref(), &cache_key).await
         {
             log::debug!("OpenAPI - Get batches from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&[cache_key.as_str()]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["batches"])
@@ -147,6 +149,7 @@ impl Apis {
         let cache_key = format!("blocks-of-batch-{batch_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&[cache_key.as_str()]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["batch_blocks"])
@@ -192,6 +195,7 @@ impl Apis {
         let cache_key = format!("chunks-of-batch-{batch_index}");
         if let Some(response) = ChunksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get chunks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&[cache_key.as_str()]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["chunks"])
@@ -250,6 +254,7 @@ impl Apis {
         let cache_key = format!("blocks-of-chunk-{chunk_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&[cache_key.as_str()]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["chunk_blocks"])
@@ -293,6 +298,7 @@ impl Apis {
             LastBatchIndexesResponse::from_cache(&state.cache, "last_batch_indexes").await
         {
             log::debug!("OpenAPI - Get last batch indexes from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["last_batch_indexes"]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["last_batch_indexes"])
@@ -343,6 +349,7 @@ impl Apis {
         let cache_key = format!("search-{keyword}");
         if let Some(response) = SearchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&[cache_key.as_str()]).inc();
 
             RESPONSE_TIME_COLLECTOR
                 .with_label_values(&["search"])

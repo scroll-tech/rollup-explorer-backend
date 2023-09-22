@@ -8,7 +8,7 @@ use poem::{
     EndpointExt, Route, Server,
 };
 use poem_openapi::OpenApiService;
-use prometheus::{HistogramOpts, HistogramVec, IntCounter, Registry};
+use prometheus::{HistogramOpts, HistogramVec, IntCounter, IntCounterVec, Opts, Registry};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
@@ -24,6 +24,8 @@ lazy_static! {
         &["api"]
     )
     .unwrap();
+    pub static ref CACHE_HITS: IntCounterVec =
+        IntCounterVec::new(Opts::new("cache_hits", "Cache Hits"), &["cache"]).unwrap();
 }
 
 #[derive(Clone, Debug)]
@@ -80,6 +82,7 @@ fn prometheus_registry() -> Registry {
     registry
         .register(Box::new(RESPONSE_TIME_COLLECTOR.clone()))
         .unwrap();
+    registry.register(Box::new(CACHE_HITS.clone())).unwrap();
 
     registry
 }
