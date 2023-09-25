@@ -1,3 +1,4 @@
+use crate::consts::DEFAULT_CACHE_EXPIRED_SECS;
 use anyhow::{anyhow, Result};
 use config::{Config, Environment, File};
 use serde::Deserialize;
@@ -22,6 +23,8 @@ pub struct Settings {
     pub max_per_page: u64,
     ///  Max DB connections (1000 as default)
     pub max_db_conns: u32,
+    ///  Expired cache seconds
+    pub cache_expired_secs: u64,
 }
 
 impl Settings {
@@ -32,11 +35,20 @@ impl Settings {
             |_| DEFAULT_MAX_CONNS,
             |conns| conns.parse::<u32>().ok().unwrap_or(DEFAULT_MAX_CONNS),
         );
+        let cache_expired_secs = env::var("CACHE_EXPIRED_SECS").map_or_else(
+            |_| DEFAULT_CACHE_EXPIRED_SECS,
+            |secs| {
+                secs.parse::<u64>()
+                    .ok()
+                    .unwrap_or(DEFAULT_CACHE_EXPIRED_SECS)
+            },
+        );
         let config = Config::builder()
             .set_default("bind_port", bind_port)?
             .set_default("run_mode", run_mode.clone())?
             .set_default("max_per_page", 100)?
             .set_default("max_db_conns", max_db_conns)?
+            .set_default("cache_expired_secs", cache_expired_secs)?
             .add_source(File::with_name("config/default"))
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
             .add_source(Environment::default())
