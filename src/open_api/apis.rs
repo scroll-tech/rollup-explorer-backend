@@ -2,6 +2,7 @@ use crate::{
     consts::*,
     db::*,
     open_api::{responses::*, State, INCOMING_REQUESTS, RESPONSE_TIME_COLLECTOR},
+    Settings,
 };
 use poem::{error::InternalServerError, web::Data, Result};
 use poem_openapi::{param::Query, payload::Json, OpenApi};
@@ -49,7 +50,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
@@ -118,7 +119,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
@@ -163,7 +164,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
@@ -221,7 +222,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
@@ -266,7 +267,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
@@ -312,7 +313,7 @@ impl Apis {
             .set(
                 "last_batch_indexes",
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
@@ -378,7 +379,7 @@ impl Apis {
             .set(
                 &cache_key,
                 Arc::new(response.clone()),
-                DEFAULT_CACHE_EXPIRED_SECS,
+                Settings::get().cache_expired_secs,
             )
             .await
         {
