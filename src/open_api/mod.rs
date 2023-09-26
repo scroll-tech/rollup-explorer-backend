@@ -1,5 +1,6 @@
 use crate::{cache::Cache, db::DbPool, Settings};
 use anyhow::Result;
+use futures::join;
 use lazy_static::lazy_static;
 use poem::{
     endpoint::PrometheusExporter,
@@ -50,19 +51,31 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
     let tokio_metrics = TokioMetrics::new();
     let ui = svr.swagger_ui();
     let spec = svr.spec();
+
+    let metrics = Route::new()
+        .at("/metrics", PrometheusExporter::new(prometheus_registry()))
+        .at("/tokio_metrics", tokio_metrics.exporter())
+        // TODO: Fix to only allow specified origins.
+        .with(Cors::new().allow_origins_fn(|_| true))
+        .with(Tracing);
+
     let app = Route::new()
         .nest("/", ui)
-        .at("/tokio_metrics", tokio_metrics.exporter())
         .nest("/api", svr.with(tokio_metrics))
-        .at("/metrics", PrometheusExporter::new(prometheus_registry()))
         .at("/spec", poem::endpoint::make_sync(move |_| spec.clone()))
         // TODO: Fix to only allow specified origins.
         .with(Cors::new().allow_origins_fn(|_| true))
-        .with(Tracing)
         .data(state);
 
-    let bind_addr = format!("0.0.0.0:{}", settings.bind_port);
-    Server::new(TcpListener::bind(bind_addr)).run(app).await?;
+    let app_bind_addr = format!("0.0.0.0:{}", settings.bind_port);
+    let metrics_bind_addr = format!("0.0.0.0:{}", settings.metrics_bind_port);
+    let app_server = Server::new(TcpListener::bind(app_bind_addr)).run(app);
+    let metrics_server = Server::new(TcpListener::bind(metrics_bind_addr)).run(metrics);
+
+    let (app_result, metrics_result) = join!(app_server, metrics_server);
+    if let Err(err) = app_result.and(metrics_result) {
+        log::error!("An error occurred in run function: {err}");
+    }
 
     Ok(())
 }

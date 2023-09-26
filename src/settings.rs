@@ -5,6 +5,7 @@ use serde::Deserialize;
 use std::{env, sync::OnceLock};
 
 const DEFAULT_BIND_PORT: &str = "5001";
+const DEFAULT_METRICS_BIND_PORT: &str = "6001";
 const DEFAULT_MAX_CONNS: u32 = 200;
 
 static SETTINGS: OnceLock<Settings> = OnceLock::new();
@@ -13,6 +14,8 @@ static SETTINGS: OnceLock<Settings> = OnceLock::new();
 pub struct Settings {
     /// Internal HTTP bind port (5001 as default)
     pub bind_port: String,
+    /// Internal HTTP metrics bind port (6001 as default)
+    pub metrics_bind_port: String,
     /// As format of `postgres://USERNAME:PASSWORD@DB_HOST:DB_PORT/DATABASE`
     pub db_url: String,
     /// As format of `HTTP_HOST:HTTP_PORT`
@@ -30,6 +33,8 @@ pub struct Settings {
 impl Settings {
     pub fn init() -> Result<()> {
         let bind_port = env::var("BIND_PORT").unwrap_or_else(|_| DEFAULT_BIND_PORT.into());
+        let metrics_bind_port =
+            env::var("METRICS_BIND_PORT").unwrap_or_else(|_| DEFAULT_METRICS_BIND_PORT.into());
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
         let max_db_conns = env::var("MAX_DB_CONNS").map_or_else(
             |_| DEFAULT_MAX_CONNS,
@@ -45,6 +50,7 @@ impl Settings {
         );
         let config = Config::builder()
             .set_default("bind_port", bind_port)?
+            .set_default("metrics_bind_port", metrics_bind_port)?
             .set_default("run_mode", run_mode.clone())?
             .set_default("max_per_page", 100)?
             .set_default("max_db_conns", max_db_conns)?
