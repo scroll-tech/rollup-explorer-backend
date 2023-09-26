@@ -9,7 +9,7 @@ use poem::{
     EndpointExt, Route, Server,
 };
 use poem_openapi::OpenApiService;
-use prometheus::{HistogramOpts, HistogramVec, IntCounter, IntCounterVec, Opts, Registry};
+use prometheus::{HistogramOpts, HistogramVec, IntCounterVec, Opts, Registry};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
@@ -18,15 +18,18 @@ mod objects;
 mod responses;
 
 lazy_static! {
-    pub static ref INCOMING_REQUESTS: IntCounter =
-        IntCounter::new("incoming_requests", "Incoming Requests").unwrap();
+    pub static ref INCOMING_REQUESTS: IntCounterVec = IntCounterVec::new(
+        Opts::new("incoming_requests", "Incoming Requests Hits"),
+        &["api"]
+    )
+    .unwrap();
     pub static ref RESPONSE_TIME_COLLECTOR: HistogramVec = HistogramVec::new(
         HistogramOpts::new("response_time", "Response Times"),
         &["api"]
     )
     .unwrap();
     pub static ref CACHE_HITS: IntCounterVec =
-        IntCounterVec::new(Opts::new("cache_hits", "Cache Hits"), &["cache"]).unwrap();
+        IntCounterVec::new(Opts::new("cache_hits", "Cache Hits"), &["api"]).unwrap();
 }
 
 #[derive(Clone, Debug)]

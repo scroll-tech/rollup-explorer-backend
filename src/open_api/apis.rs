@@ -23,7 +23,7 @@ impl Apis {
     #[oai(path = "/batch", method = "get")]
     async fn batch(&self, state: Data<&State>, index: Query<i64>) -> Result<Json<BatchResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS.with_label_values(&["batch"]).inc();
 
         let index = index.0;
 
@@ -73,7 +73,7 @@ impl Apis {
         per_page: Query<Option<u64>>,
     ) -> Result<Json<BatchesResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS.with_label_values(&["batches"]).inc();
 
         let limit = per_page.0.map_or_else(
             || DEFAULT_PER_PAGE,
@@ -138,7 +138,7 @@ impl Apis {
         batch_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS.with_label_values(&["batch_blocks"]).inc();
 
         let batch_index = batch_index.0;
 
@@ -184,7 +184,7 @@ impl Apis {
         batch_index: Query<i64>,
     ) -> Result<Json<ChunksResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS.with_label_values(&["chunks"]).inc();
 
         let batch_index = batch_index.0;
 
@@ -243,7 +243,7 @@ impl Apis {
         chunk_index: Query<i64>,
     ) -> Result<Json<BlocksResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS.with_label_values(&["chunk_blocks"]).inc();
 
         let chunk_index = chunk_index.0;
 
@@ -288,7 +288,9 @@ impl Apis {
         state: Data<&State>,
     ) -> Result<Json<LastBatchIndexesResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS
+            .with_label_values(&["last_batch_indexes"])
+            .inc();
 
         // Return directly if cached.
         if let Some(response) =
@@ -338,7 +340,7 @@ impl Apis {
         keyword: Query<String>,
     ) -> Result<Json<SearchResponse>> {
         let response_time = Instant::now();
-        INCOMING_REQUESTS.inc();
+        INCOMING_REQUESTS.with_label_values(&["search"]).inc();
 
         let keyword = keyword.0;
 
