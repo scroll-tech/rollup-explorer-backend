@@ -78,12 +78,8 @@ impl Apis {
         let limit = per_page.0.map_or_else(
             || DEFAULT_PER_PAGE,
             |val| {
-                if val > 0 {
-                    if val > state.max_per_page {
-                        state.max_per_page
-                    } else {
-                        val
-                    }
+                if val == 10 || val == 25 || val == 100 {
+                    val
                 } else {
                     DEFAULT_PER_PAGE
                 }
