@@ -1,7 +1,7 @@
 use crate::{
     consts::*,
     db::*,
-    open_api::{responses::*, State, INCOMING_REQUESTS, RESPONSE_TIME_COLLECTOR},
+    open_api::{responses::*, State, CACHE_HITS, INCOMING_REQUESTS, RESPONSE_TIME_COLLECTOR},
     Settings,
 };
 use poem::{error::InternalServerError, web::Data, Result};
@@ -31,9 +31,10 @@ impl Apis {
         let cache_key = format!("batch-{index}");
         if let Some(response) = BatchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get batch from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["batch"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["batch"])
+                .with_label_values(&["batch_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -58,7 +59,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["batch"])
+            .with_label_values(&["batch_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -97,9 +98,10 @@ impl Apis {
         if let Some(response) = BatchesResponse::from_cache(state.cache.as_ref(), &cache_key).await
         {
             log::debug!("OpenAPI - Get batches from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["batches"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["batches"])
+                .with_label_values(&["batches_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -127,7 +129,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["batches"])
+            .with_label_values(&["batches_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -148,9 +150,10 @@ impl Apis {
         let cache_key = format!("blocks-of-batch-{batch_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["batch_blocks"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["batch_blocks"])
+                .with_label_values(&["batch_blocks_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -172,7 +175,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["batch_blocks"])
+            .with_label_values(&["batch_blocks_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -193,9 +196,10 @@ impl Apis {
         let cache_key = format!("chunks-of-batch-{batch_index}");
         if let Some(response) = ChunksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get chunks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["chunks"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["chunks"])
+                .with_label_values(&["chunks_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -230,7 +234,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["chunks"])
+            .with_label_values(&["chunks_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -251,9 +255,10 @@ impl Apis {
         let cache_key = format!("blocks-of-chunk-{chunk_index}");
         if let Some(response) = BlocksResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["chunk_blocks"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["chunk_blocks"])
+                .with_label_values(&["chunk_blocks_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -275,7 +280,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["chunk_blocks"])
+            .with_label_values(&["chunk_blocks_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -294,9 +299,10 @@ impl Apis {
             LastBatchIndexesResponse::from_cache(&state.cache, "last_batch_indexes").await
         {
             log::debug!("OpenAPI - Get last batch indexes from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["last_batch_indexes"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["last_batch_indexes"])
+                .with_label_values(&["last_batch_indexes_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -321,7 +327,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["last_batch_indexes"])
+            .with_label_values(&["last_batch_indexes_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -344,9 +350,10 @@ impl Apis {
         let cache_key = format!("search-{keyword}");
         if let Some(response) = SearchResponse::from_cache(state.cache.as_ref(), &cache_key).await {
             log::debug!("OpenAPI - Get blocks from Cache: {response:?}");
+            CACHE_HITS.with_label_values(&["search"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["search"])
+                .with_label_values(&["search_hit"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -387,7 +394,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["search"])
+            .with_label_values(&["search_miss"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
