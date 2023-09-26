@@ -34,7 +34,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["batch"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["batch_hit"])
+                .with_label_values(&["batch"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -59,7 +59,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["batch_miss"])
+            .with_label_values(&["batch"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -97,7 +97,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["batches"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["batches_hit"])
+                .with_label_values(&["batches"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -125,7 +125,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["batches_miss"])
+            .with_label_values(&["batches"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -149,7 +149,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["batch_blocks"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["batch_blocks_hit"])
+                .with_label_values(&["batch_blocks"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -171,7 +171,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["batch_blocks_miss"])
+            .with_label_values(&["batch_blocks"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -195,7 +195,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["chunks"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["chunks_hit"])
+                .with_label_values(&["chunks"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -230,7 +230,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["chunks_miss"])
+            .with_label_values(&["chunks"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -254,7 +254,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["chunk_blocks"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["chunk_blocks_hit"])
+                .with_label_values(&["chunk_blocks"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -276,7 +276,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["chunk_blocks_miss"])
+            .with_label_values(&["chunk_blocks"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -300,7 +300,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["last_batch_indexes"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["last_batch_indexes_hit"])
+                .with_label_values(&["last_batch_indexes"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -325,7 +325,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["last_batch_indexes_miss"])
+            .with_label_values(&["last_batch_indexes"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
@@ -351,7 +351,7 @@ impl Apis {
             CACHE_HITS.with_label_values(&["search"]).inc();
 
             RESPONSE_TIME_COLLECTOR
-                .with_label_values(&["search_hit"])
+                .with_label_values(&["search"])
                 .observe(response_time.elapsed().as_secs_f64());
 
             return Ok(Json(response));
@@ -392,7 +392,7 @@ impl Apis {
         }
 
         RESPONSE_TIME_COLLECTOR
-            .with_label_values(&["search_miss"])
+            .with_label_values(&["search"])
             .observe(response_time.elapsed().as_secs_f64());
 
         Ok(Json(response))
