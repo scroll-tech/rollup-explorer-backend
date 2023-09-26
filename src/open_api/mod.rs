@@ -32,7 +32,6 @@ lazy_static! {
 struct State {
     cache: Arc<Cache>,
     db_pool: DbPool,
-    max_per_page: u64,
 }
 
 pub async fn run(cache: Arc<Cache>) -> Result<()> {
@@ -42,12 +41,7 @@ pub async fn run(cache: Arc<Cache>) -> Result<()> {
         .connect(settings.db_url.as_str())
         .await?;
 
-    let max_per_page = settings.max_per_page;
-    let state = State {
-        cache,
-        db_pool,
-        max_per_page,
-    };
+    let state = State { cache, db_pool };
 
     let open_api_addr = &settings.open_api_addr;
     let svr = OpenApiService::new(apis::Apis, "Scroll Rollup Explorer", "2.0")
