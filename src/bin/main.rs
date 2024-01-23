@@ -14,7 +14,6 @@ async fn main() -> Result<()> {
         .init();
 
     Settings::init()?;
-    log::debug!("{:?}", Settings::get());
 
     let mut cache = Arc::new(cache::run()?);
     open_api::run(cache.clone()).await?;
