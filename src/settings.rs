@@ -20,8 +20,6 @@ pub struct Settings {
     pub db_url: String,
     /// As format of `HTTP_HOST:HTTP_PORT`
     pub open_api_addr: String,
-    /// `development` or `production`
-    run_mode: String,
     ///  Max value of query parameter `per_page` (100 as default)
     pub max_per_page: u64,
     ///  Max DB connections (1000 as default)
@@ -35,7 +33,6 @@ impl Settings {
         let bind_port = env::var("BIND_PORT").unwrap_or_else(|_| DEFAULT_BIND_PORT.into());
         let metrics_bind_port =
             env::var("METRICS_BIND_PORT").unwrap_or_else(|_| DEFAULT_METRICS_BIND_PORT.into());
-        let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
         let max_db_conns = env::var("MAX_DB_CONNS").map_or_else(
             |_| DEFAULT_MAX_CONNS,
             |conns| conns.parse::<u32>().ok().unwrap_or(DEFAULT_MAX_CONNS),
@@ -51,12 +48,10 @@ impl Settings {
         let config = Config::builder()
             .set_default("bind_port", bind_port)?
             .set_default("metrics_bind_port", metrics_bind_port)?
-            .set_default("run_mode", run_mode.clone())?
             .set_default("max_per_page", 100)?
             .set_default("max_db_conns", max_db_conns)?
             .set_default("cache_expired_secs", cache_expired_secs)?
-            .add_source(File::with_name("config/default"))
-            .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
+            .add_source(File::with_name("config/config.json"))
             .add_source(Environment::default())
             .build()?;
 
@@ -70,13 +65,5 @@ impl Settings {
 
     pub fn get() -> &'static Self {
         SETTINGS.get().unwrap()
-    }
-
-    pub fn is_dev(&self) -> bool {
-        self.run_mode == "development"
-    }
-
-    pub fn is_prod(&self) -> bool {
-        self.run_mode == "production"
     }
 }

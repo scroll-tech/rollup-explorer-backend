@@ -17,14 +17,8 @@ RUN --mount=target=. \
 
 FROM alpine:3.15
 
-ENV OPEN_API_ADDR=$open_api_addr
-ENV RUN_MODE="production"
+WORKDIR /app
 
-WORKDIR app
-
-RUN mkdir -p /app/config
-COPY ./config/ /app/config/
-COPY .env /app/
 COPY --from=builder /app-target/release/rollup_explorer /bin/
 
 ENTRYPOINT ["rollup_explorer"]

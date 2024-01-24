@@ -1,0 +1,7 @@
+{
+  "bind_port": "8560",
+  "metrics_bind_port": "19130",
+  "db_url" : "127.0.0.1:8080",
+  "open_api_addr" : "/rollupscan",
+  "max_per_page": 500
+}
