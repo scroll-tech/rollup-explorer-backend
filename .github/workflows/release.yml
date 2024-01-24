@@ -63,7 +63,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: rollup-explorer-backend
-          IMAGE_TAG: ${{ steps.meta.outputs.version }}
+          IMAGE_TAG: ${{ github.ref_name }}
         uses: docker/build-push-action@v3
         with:
           push: true
