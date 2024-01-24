@@ -69,4 +69,4 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.tags }}
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
