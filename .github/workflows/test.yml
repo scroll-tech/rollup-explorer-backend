@@ -25,6 +25,6 @@ jobs:
           override: true
           profile: minimal
           toolchain: nightly-2022-07-26
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@nextest
       - run: cargo nextest run --all
