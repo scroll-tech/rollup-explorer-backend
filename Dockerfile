@@ -1,6 +1,6 @@
 # Build
 
-FROM scrolltech/rust-alpine-builder:nightly-2022-08-23 AS chef
+FROM scrolltech/rust-alpine-builder:nightly-2023-12-03 AS chef
 WORKDIR app
 
 FROM chef AS planner
