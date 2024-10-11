@@ -19,6 +19,8 @@ FROM alpine:3.15
 
 WORKDIR /app
 
+RUN apk update && apk add vim netcat-openbsd net-tools curl
+
 COPY --from=builder /app-target/release/rollup_explorer /bin/
 
 ENTRYPOINT ["rollup_explorer"]
