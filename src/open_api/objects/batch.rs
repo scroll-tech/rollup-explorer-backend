@@ -68,9 +68,9 @@ impl From<models::Batch> for Batch {
             end_chunk_hash: batch.end_chunk_hash,
             commit_tx_hash: batch.commit_tx_hash,
             finalize_tx_hash: batch.finalize_tx_hash,
-            created_at: batch.created_at.timestamp().into(),
-            committed_at: batch.committed_at.map(|t| t.timestamp().into()),
-            finalized_at: batch.finalized_at.map(|t| t.timestamp().into()),
+            created_at: batch.created_at.and_utc().timestamp().into(),
+            committed_at: batch.committed_at.map(|t| t.and_utc().timestamp().into()),
+            finalized_at: batch.finalized_at.map(|t| t.and_utc().timestamp().into()),
         }
     }
 }
