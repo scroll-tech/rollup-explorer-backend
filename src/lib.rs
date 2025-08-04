@@ -1,5 +1,3 @@
-#![feature(once_cell)]
-
 pub mod cache;
 pub mod consts;
 pub mod db;

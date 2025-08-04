@@ -20,7 +20,7 @@ impl From<models::Chunk> for Chunk {
             start_block_number: chunk.start_block_number,
             end_block_number: chunk.end_block_number,
             total_tx_num: chunk.total_tx_num,
-            created_at: chunk.created_at.timestamp().into(),
+            created_at: chunk.created_at.and_utc().timestamp().into(),
         }
     }
 }
